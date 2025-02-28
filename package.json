@@ -9,13 +9,25 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "next": "15.2.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.2.0"
+    "nodemon": "^3.1.9",
+    "react-dom": "^19.0.0"
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "index.js",
-  "devDependencies": {},
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HenriqueMNH/barbieriapp2.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/HenriqueMNH/barbieriapp2/issues"
+  },
+  "homepage": "https://github.com/HenriqueMNH/barbieriapp2#readme"
 }

@@ -1,0 +1,71 @@
+.listaPage {
+    padding: 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+}
+
+.filters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+}
+
+.table th, .table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #0070f3;
+    color: white;
+}
+
+.observacao {
+    font-style: italic;
+    color: #555;
+}
+
+.resetButton {
+    padding: 10px 15px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+
+.resetButton:hover {
+    background-color: #cc0000;
+}
+
+.erroMatricula {
+    color: red;
+    font-weight: bold;
+}
+
+
+
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
+}
