@@ -50,16 +50,15 @@ export default function ListaAlunos() {
   }, []);
 
   const validarMatricula = (aluno) => {
-    const anoPrimitivo = parseInt(aluno.matriculaPrimitiva.split("/")[2]); // Pega o ano da Matrícula Primitiva
-    const anoLetivo = parseInt(aluno.matriculaAtual.split("/")[2]); // Pega o ano da Matrícula do Ano Letivo
-    const anosEsperados = parseInt(aluno.anoCurso[0]) - 1; // O 1º ano deve ser logo após a matrícula primitiva
-  
+    const anoPrimitivo = parseInt(aluno.matriculaPrimitiva.split("/")[2]); 
+    const anoLetivo = parseInt(aluno.matriculaAtual.split("/")[2]); 
+    const anosEsperados = parseInt(aluno.anoCurso[0]) - 1; 
+
     if (anoLetivo - anoPrimitivo !== anosEsperados) {
       return "Erro na matrícula: a diferença de anos não corresponde ao ano de estudo.";
     }
     return "";
   };
-  
 
   const handleFiltroChange = (e) => {
     setFiltros({ ...filtros, [e.target.name]: e.target.value });
@@ -82,6 +81,9 @@ export default function ListaAlunos() {
       (!filtros.periodo || aluno.periodo === filtros.periodo)
     );
   });
+
+  // Verifica se pelo menos um filtro foi selecionado
+  const temFiltrosSelecionados = Object.values(filtros).some((filtro) => filtro !== "");
 
   return (
     <div className={styles.listaPage}>
@@ -122,51 +124,54 @@ export default function ListaAlunos() {
         </button>
       </div>
 
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Data de Nascimento</th>
-            <th>Naturalidade</th>
-            <th>Nome do Pai</th>
-            <th>Nome da Mãe</th>
-            <th>Profissão do Pai</th>
-            <th>Nacionalidade do Pai</th>
-            <th>Residência</th>
-            <th>Matrícula Primitiva</th>
-            <th>Matrícula do Ano Letivo</th>
-            <th>Ano do Curso</th>
-            <th>Período</th>
-            <th>Observações</th>
-          </tr>
-        </thead>
-        <tbody>
-  {alunosFiltrados.map((aluno) => {
-    const erroMatricula = validarMatricula(aluno);
-    return (
-      <tr key={aluno.id}>
-        <td>{aluno.id}</td>
-        <td>{aluno.nome}</td>
-        <td>{aluno.nascimento}</td>
-        <td>{aluno.naturalidade}</td>
-        <td>{aluno.pai}</td>
-        <td>{aluno.mae}</td>
-        <td>{aluno.profissaoPai}</td>
-        <td>{aluno.nacionalidadePai}</td>
-        <td>{aluno.residencia}</td>
-        <td>{aluno.matriculaPrimitiva}</td>
-        <td>{aluno.matriculaAtual}</td>
-        <td>{aluno.anoCurso}</td>
-        <td>{aluno.periodo}</td>
-        <td className={erroMatricula ? "erroMatricula" : ""}>
-          {erroMatricula || aluno.observacoes}
-        </td>
-      </tr>
-    );
-  })}
-</tbody>
-      </table>
+      {/* Só exibe a tabela se algum filtro estiver selecionado */}
+      {temFiltrosSelecionados && (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Data de Nascimento</th>
+              <th>Naturalidade</th>
+              <th>Nome do Pai</th>
+              <th>Nome da Mãe</th>
+              <th>Profissão do Pai</th>
+              <th>Nacionalidade do Pai</th>
+              <th>Residência</th>
+              <th>Matrícula Primitiva</th>
+              <th>Matrícula do Ano Letivo</th>
+              <th>Ano do Curso</th>
+              <th>Período</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {alunosFiltrados.map((aluno) => {
+              const erroMatricula = validarMatricula(aluno);
+              return (
+                <tr key={aluno.id}>
+                  <td>{aluno.id}</td>
+                  <td>{aluno.nome}</td>
+                  <td>{aluno.nascimento}</td>
+                  <td>{aluno.naturalidade}</td>
+                  <td>{aluno.pai}</td>
+                  <td>{aluno.mae}</td>
+                  <td>{aluno.profissaoPai}</td>
+                  <td>{aluno.nacionalidadePai}</td>
+                  <td>{aluno.residencia}</td>
+                  <td>{aluno.matriculaPrimitiva}</td>
+                  <td>{aluno.matriculaAtual}</td>
+                  <td>{aluno.anoCurso}</td>
+                  <td>{aluno.periodo}</td>
+                  <td className={erroMatricula ? "erroMatricula" : ""}>
+                    {erroMatricula || aluno.observacoes}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
