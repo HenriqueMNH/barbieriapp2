@@ -54,93 +54,87 @@ module.exports = {
     async editarEscolas(request, response) {
         try {
             const { escola_nome, escola_endereco, escola_telefone } = request.body;
-            const { escola_id } = request.params;
-
-            // Verifica se o ID da escola foi enviado corretamente
-            if (!escola_id) {
+            const { id } = request.params;  // Aqui estamos pegando o ID da URL
+    
+            // Verifica se o ID foi enviado corretamente
+            if (!id) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'O ID da escola é obrigatório na URL.'
+                    mensagem: "O ID da escola é obrigatório na URL."
                 });
             }
-
-            // Verifica se os dados foram enviados corretamente
-            if (!escola_nome && !escola_endereco && !escola_telefone) {
+    
+            // Verifica se os campos necessários foram enviados
+            if (!escola_nome || !escola_endereco || !escola_telefone) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'Pelo menos um dado da escola precisa ser informado para atualização.'
+                    mensagem: "Os dados da escola (nome, endereço e telefone) são obrigatórios."
                 });
             }
-
-            const sql = `
-                UPDATE escolas
-                SET
-                    escola_nome = IFNULL(?, escola_nome),
-                    escola_endereco = IFNULL(?, escola_endereco),
-                    escola_telefone = IFNULL(?, escola_telefone)
-                WHERE id = ?`;
-            const values = [escola_nome, escola_endereco, escola_telefone, escola_id];
-
+    
+            const sql = `UPDATE escolas SET escola_nome = ?, escola_endereco = ?, escola_telefone = ? WHERE id = ?`;
+            const values = [escola_nome, escola_endereco, escola_telefone, id];
+    
             const [atualizaDados] = await db.query(sql, values);
-
+    
             // Verifica se alguma linha foi afetada
             if (atualizaDados.affectedRows === 0) {
                 return response.status(404).json({
                     sucesso: false,
-                    mensagem: `Nenhuma escola encontrada com ID ${escola_id}.`
+                    mensagem: `Nenhuma escola encontrada com ID ${id}.`
                 });
             }
-
+    
             return response.status(200).json({
                 sucesso: true,
-                mensagem: `Escola ${escola_id} atualizada com sucesso.`,
+                mensagem: `Escola ${id} atualizada com sucesso.`,
                 dados: atualizaDados.affectedRows
             });
         } catch (error) {
             return response.status(500).json({
                 sucesso: false,
-                mensagem: 'Erro na requisição.',
-                dados: error.mensagem
+                mensagem: "Erro na requisição.",
+                dados: error.message
             });
         }
     },
-
+    
     async apagarEscolas(request, response) {
         try {
-            const { escola_id } = request.params;
-
+            const { id } = request.params;  // Pegando o ID da URL
+    
             // Verifica se o ID foi enviado corretamente
-            if (!escola_id) {
+            if (!id) {
                 return response.status(400).json({
                     sucesso: false,
-                    mensagem: 'O ID da escola é obrigatório.'
+                    mensagem: "O ID da escola é obrigatório na URL."
                 });
             }
-
-            const sql = 'DELETE FROM escolas WHERE id = ?';
-            const values = [escola_id];
-
+    
+            const sql = `DELETE FROM escolas WHERE id = ?`;
+            const values = [id];
+    
             const excluir = await db.query(sql, values);
-
-            // Verifica se a escola foi excluída
+    
+            // Verifica se alguma linha foi afetada
             if (excluir[0].affectedRows === 0) {
                 return response.status(404).json({
                     sucesso: false,
-                    mensagem: `Nenhuma escola encontrada com ID ${escola_id}.`
+                    mensagem: `Nenhuma escola encontrada com ID ${id}.`
                 });
             }
-
+    
             return response.status(200).json({
                 sucesso: true,
-                mensagem: `Escola ${escola_id} excluída com sucesso.`,
+                mensagem: `Escola ${id} excluída com sucesso.`,
                 dados: excluir[0].affectedRows
             });
         } catch (error) {
             return response.status(500).json({
                 sucesso: false,
-                mensagem: 'Erro na requisição.',
-                dados: error.mensagem
+                mensagem: "Erro na requisição.",
+                dados: error.message
             });
         }
     }
-};
+    };
