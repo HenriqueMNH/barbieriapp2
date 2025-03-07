@@ -11,8 +11,8 @@ const AlunosController = require('../controllers/alunos');
 //router usuarios
 router.get('/usuarios', UsuariosController.listarUsuario);
 router.post('/usuarios', UsuariosController.cadastrarUsuarios);
-router.patch('/usuarios', UsuariosController.editarUsuarios);
-router.delete('/usuarios', UsuariosController.apagarUsuarios);
+router.patch('/usuarios/:usuario_id', UsuariosController.editarUsuarios);
+router.delete('/usuarios/:usuario_id', UsuariosController.apagarUsuarios);
 
 //router notas
 router.get('/notas', NotasController.listarNotas);
@@ -23,14 +23,14 @@ router.delete('/notas', NotasController.apagarNotas);
 //router escolas
 router.get('/escolas', EscolasController.listarEscolas);
 router.post('/escolas', EscolasController.cadastrarEscolas);
-router.patch('/escolas', EscolasController.editarEscolas);
-router.delete('/escolas', EscolasController.apagarEscolas);
+router.patch('/escolas/:id', EscolasController.editarEscolas);
+router.delete('/escolas/:id', EscolasController.apagarEscolas);
 
 //router alunos
 router.get('/alunos', AlunosController.listarAlunos);
 router.post('/alunos', AlunosController.cadastrarAlunos);
-router.patch('/alunos', AlunosController.editarAlunos);
-router.delete('/alunos', AlunosController.apagarAlunos);
+router.patch('/alunos/:id', AlunosController.editarAlunos);
+router.delete('/alunos/:id', AlunosController.apagarAlunos);
 
 
 
