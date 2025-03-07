@@ -1,25 +1,56 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Home() {
   const router = useRouter();
 
   const [senha, setSenha] = useState("");
   const [escola, setEscola] = useState("");
+  const [escolas, setEscolas] = useState([]);
   const [erro, setErro] = useState("");
 
-  const handleLogin = () => {
+  // Carregar lista de escolas do banco
+  useEffect(() => {
+    const fetchEscolas = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:3333/escolas");
+        console.log(response.data);  // Verifique a resposta da API
+        setEscolas(response.data.dados); // Assumindo que a resposta contém o campo `dados` com as escolas
+      } catch (error) {
+        console.error("Erro ao carregar escolas:", error);
+        setErro("Erro ao carregar escolas.");
+      }
+    };
+
+    fetchEscolas();
+  }, []);
+
+  // Função de login
+  const handleLogin = async () => {
     if (!escola || !senha) {
       setErro("Por favor, selecione uma escola e preencha a senha.");
       return;
     }
 
-    // Caso a escola e senha sejam preenchidas, redireciona para /menu
-    router.push("/menu");
+    try {
+      const response = await axios.post("http://127.0.0.1:3333/usuarios/login", {
+        escola_id: escola,
+        senha: senha,
+      });
+
+      if (response.data.sucesso) {
+        router.push("/menu");
+      } else {
+        setErro("Senha incorreta ou escola não encontrada.");
+      }
+    } catch (error) {
+      setErro("Erro ao realizar login.");
+    }
   };
 
   return (
@@ -41,9 +72,11 @@ export default function Home() {
           onChange={(e) => setEscola(e.target.value)}
         >
           <option value="">Selecione uma escola</option>
-          <option value="school1">Escola 1</option>
-          <option value="school2">Escola 2</option>
-          <option value="school3">Escola 3</option>
+          {escolas.map((escolaItem) => (
+            <option key={escolaItem.id} value={escolaItem.id}>
+              {escolaItem.escola_nome || "Nome não disponível"} {/* Ajuste para usar o campo correto */}
+            </option>
+          ))}
         </select>
 
         <input

@@ -13,12 +13,14 @@ router.get('/usuarios', UsuariosController.listarUsuario);
 router.post('/usuarios', UsuariosController.cadastrarUsuarios);
 router.patch('/usuarios/:usuario_id', UsuariosController.editarUsuarios);
 router.delete('/usuarios/:usuario_id', UsuariosController.apagarUsuarios);
+router.post('/usuarios/login', UsuariosController.login);
+
 
 //router notas
 router.get('/notas', NotasController.listarNotas);
 router.post('/notas', NotasController.cadastrarNotas);
-router.patch('/notas', NotasController.editarNotas);
-router.delete('/notas', NotasController.apagarNotas);
+router.patch('/notas/:id', NotasController.editarNotas);
+router.delete('/notas/:id', NotasController.apagarNotas);
 
 //router escolas
 router.get('/escolas', EscolasController.listarEscolas);
