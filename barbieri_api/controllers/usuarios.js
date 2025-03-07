@@ -1,6 +1,44 @@
 const db = require ('../database/connection');
 
 module.exports = {
+  // Endpoint de login
+  async login(request, response) {
+    try {
+      const { escola_id, senha } = request.body;
+
+      if (!escola_id || !senha) {
+        return response.status(400).json({
+          sucesso: false,
+          mensagem: "Escola e senha são obrigatórios.",
+        });
+      }
+
+      // Verifica se existe um usuário com a escola e senha fornecida
+      const sql = `SELECT * FROM usuarios WHERE escola_id = ? AND usuario_senha = ?`;
+      const values = [escola_id, senha];
+      const usuarios = await db.query(sql, values);
+
+      if (usuarios[0].length === 0) {
+        return response.status(401).json({
+          sucesso: false,
+          mensagem: "Usuário ou senha inválidos.",
+        });
+      }
+
+      return response.status(200).json({
+        sucesso: true,
+        mensagem: "Login bem-sucedido.",
+        dados: usuarios[0],
+      });
+    } catch (error) {
+      return response.status(500).json({
+        sucesso: false,
+        mensagem: "Erro na requisição.",
+        dados: error.message,
+      });
+    }
+  },
+
     async listarUsuario(request, response) {
         try {
             //Instruções SQL
