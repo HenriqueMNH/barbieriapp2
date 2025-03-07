@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import styles from "./page.module.css";
 
 export default function ListaAlunos() {
@@ -9,50 +10,32 @@ export default function ListaAlunos() {
     ano: "",
     anoEstudo: "",
     serie: "",
-    periodo: ""
+    periodo: "",
   });
 
+  // Requisição para pegar a lista de alunos
   useEffect(() => {
-    setAlunos([
-      {
-        id: 1,
-        nome: "João Silva",
-        nascimento: "01/02/2008",
-        naturalidade: "São Paulo",
-        pai: "Carlos Silva",
-        mae: "Ana Silva",
-        profissaoPai: "Engenheiro",
-        nacionalidadePai: "Brasileiro",
-        residencia: "Rua A, 123",
-        matriculaPrimitiva: "15/02/2014",
-        matriculaAtual: "15/02/2014",
-        anoCurso: "1A",
-        periodo: "Manhã",
-        observacoes: "Aprovado"
-      },
-      {
-        id: 2,
-        nome: "Maria Oliveira",
-        nascimento: "10/05/2007",
-        naturalidade: "Rio de Janeiro",
-        pai: "José Oliveira",
-        mae: "Clara Oliveira",
-        profissaoPai: "Professor",
-        nacionalidadePai: "Brasileiro",
-        residencia: "Av. Central, 45",
-        matriculaPrimitiva: "20/02/2013",
-        matriculaAtual: "20/02/2022",
-        anoCurso: "2B",
-        periodo: "Tarde",
-        observacoes: "Reprovado"
+    const fetchAlunos = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:3333/alunos");
+        setAlunos(response.data.dados); // Atualiza a lista de alunos
+      } catch (error) {
+        console.error("Erro ao buscar alunos:", error);
       }
-    ]);
+    };
+
+    fetchAlunos();
   }, []);
 
+  // Função para validar as matrículas
   const validarMatricula = (aluno) => {
-    const anoPrimitivo = parseInt(aluno.matriculaPrimitiva.split("/")[2]); 
-    const anoLetivo = parseInt(aluno.matriculaAtual.split("/")[2]); 
-    const anosEsperados = parseInt(aluno.anoCurso[0]) - 1; 
+    if (!aluno.matriculaPrimitiva || !aluno.matriculaAtual) {
+      return "Erro na matrícula: dados de matrícula ausentes.";
+    }
+
+    const anoPrimitivo = parseInt(aluno.matriculaPrimitiva.split("/")[2]);
+    const anoLetivo = parseInt(aluno.matriculaAtual.split("/")[2]);
+    const anosEsperados = parseInt(aluno.anoCurso[0]) - 1;
 
     if (anoLetivo - anoPrimitivo !== anosEsperados) {
       return "Erro na matrícula: a diferença de anos não corresponde ao ano de estudo.";
@@ -60,60 +43,98 @@ export default function ListaAlunos() {
     return "";
   };
 
+  // Função para lidar com alterações nos filtros
   const handleFiltroChange = (e) => {
     setFiltros({ ...filtros, [e.target.name]: e.target.value });
   };
 
+  // Função para resetar os filtros
   const resetarFiltros = () => {
     setFiltros({
       ano: "",
       anoEstudo: "",
       serie: "",
-      periodo: ""
+      periodo: "",
     });
   };
 
-  const alunosFiltrados = alunos.filter((aluno) => {
-    return (
-      (!filtros.ano || aluno.matriculaAtual.includes(filtros.ano)) &&
-      (!filtros.anoEstudo || aluno.anoCurso[0] === filtros.anoEstudo) &&
-      (!filtros.serie || aluno.anoCurso[1] === filtros.serie) &&
-      (!filtros.periodo || aluno.periodo === filtros.periodo)
-    );
-  });
+// Função para filtrar os alunos com base nos filtros
+const alunosFiltrados = alunos.filter((aluno) => {
+  // Depuração: verifique os valores dos filtros
+  console.log("Filtros aplicados:", filtros);
+  console.log("Aluno sendo filtrado:", aluno);
 
-  // Verifica se pelo menos um filtro foi selecionado
-  const temFiltrosSelecionados = Object.values(filtros).some((filtro) => filtro !== "");
+  // Filtro de Ano de Matrícula (ano_letivo) - Fazemos a comparação com o ano correto
+  const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
+
+  // Filtro de Ano de Estudo - Ajustando a comparação
+  const filtroAnoEstudo = filtros.anoEstudo
+    ? aluno.ano_curso && aluno.ano_curso[0] && aluno.ano_curso[0].toString() === filtros.anoEstudo
+    : true;
+
+  // Filtro de Série
+  const filtroSerie = filtros.serie ? aluno.ano_curso[1] === filtros.serie : true;
+
+  // Filtro de Período
+  const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
+
+  // Depuração: resultado da filtragem de cada aluno
+  console.log(`Aluno ${aluno.aluno_nome}:`, filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo);
+
+  return filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo;
+});
 
   return (
     <div className={styles.listaPage}>
       <h1>Lista de Alunos</h1>
-      
-      <div className={styles.filtros}>
-        <select name="ano" value={filtros.ano} onChange={handleFiltroChange}>
+
+      <div className={styles.filters}>
+        <select
+          name="ano"
+          value={filtros.ano}
+          onChange={handleFiltroChange}
+          className={styles.select}
+        >
           <option value="">Ano</option>
           {[...Array(2025 - 1940)].map((_, i) => (
-            <option key={i} value={1940 + i}>{1940 + i}</option>
+            <option key={i} value={1940 + i}>
+              {1940 + i}
+            </option>
           ))}
         </select>
-        
-        <select name="anoEstudo" value={filtros.anoEstudo} onChange={handleFiltroChange}>
+
+        <select
+          name="anoEstudo"
+          value={filtros.anoEstudo}
+          onChange={handleFiltroChange}
+          className={styles.select}
+        >
           <option value="">Ano de Estudo</option>
           <option value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
           <option value="4">4</option>
         </select>
-        
-        <select name="serie" value={filtros.serie} onChange={handleFiltroChange}>
+
+        <select
+          name="serie"
+          value={filtros.serie}
+          onChange={handleFiltroChange}
+          className={styles.select}
+        >
           <option value="">Série</option>
           <option value="A">A</option>
           <option value="B">B</option>
           <option value="C">C</option>
           <option value="D">D</option>
         </select>
-        
-        <select name="periodo" value={filtros.periodo} onChange={handleFiltroChange}>
+
+        <select
+          name="periodo"
+          value={filtros.periodo}
+          onChange={handleFiltroChange}
+          className={styles.select}
+        >
           <option value="">Período</option>
           <option value="Manhã">Manhã</option>
           <option value="Tarde">Tarde</option>
@@ -124,8 +145,8 @@ export default function ListaAlunos() {
         </button>
       </div>
 
-      {/* Só exibe a tabela se algum filtro estiver selecionado */}
-      {temFiltrosSelecionados && (
+      {/* Exibe a tabela de alunos filtrados */}
+      {alunosFiltrados.length > 0 ? (
         <table className={styles.table}>
           <thead>
             <tr>
@@ -151,26 +172,28 @@ export default function ListaAlunos() {
               return (
                 <tr key={aluno.id}>
                   <td>{aluno.id}</td>
-                  <td>{aluno.nome}</td>
-                  <td>{aluno.nascimento}</td>
-                  <td>{aluno.naturalidade}</td>
-                  <td>{aluno.pai}</td>
-                  <td>{aluno.mae}</td>
-                  <td>{aluno.profissaoPai}</td>
-                  <td>{aluno.nacionalidadePai}</td>
+                  <td>{aluno.aluno_nome}</td>
+                  <td>{aluno.data_nascimento}</td>
+                  <td>{aluno.cidade_natal}</td>
+                  <td>{aluno.nome_pai}</td>
+                  <td>{aluno.nome_mae}</td>
+                  <td>{aluno.profissao_pai}</td>
+                  <td>{aluno.nacionalidade_pai}</td>
                   <td>{aluno.residencia}</td>
-                  <td>{aluno.matriculaPrimitiva}</td>
-                  <td>{aluno.matriculaAtual}</td>
-                  <td>{aluno.anoCurso}</td>
+                  <td>{aluno.matricula_primitiva}</td>
+                  <td>{aluno.matricula_ano_letivo}</td>
+                  <td>{aluno.ano_curso}</td>
                   <td>{aluno.periodo}</td>
                   <td className={erroMatricula ? "erroMatricula" : ""}>
-                    {erroMatricula || aluno.observacoes}
+                    {erroMatricula || aluno.observacao}
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      ) : (
+        <p className={styles.noResults}>Nenhum aluno encontrado com os filtros aplicados.</p>
       )}
     </div>
   );
