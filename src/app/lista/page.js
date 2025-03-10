@@ -60,28 +60,28 @@ export default function ListaAlunos() {
 
 // Função para filtrar os alunos com base nos filtros
 const alunosFiltrados = alunos.filter((aluno) => {
-  // Depuração: verifique os valores dos filtros
   console.log("Filtros aplicados:", filtros);
   console.log("Aluno sendo filtrado:", aluno);
 
-  // Filtro de Ano de Matrícula (ano_letivo) - Fazemos a comparação com o ano correto
+  // Filtro de Ano de Matrícula (ano_letivo)
   const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
 
-  // Filtro de Ano de Estudo - Ajustando a comparação
+  // Filtro de Ano de Estudo (corrigido para evitar erro de tipo)
   const filtroAnoEstudo = filtros.anoEstudo
-    ? aluno.ano_curso && aluno.ano_curso[0] && aluno.ano_curso[0].toString() === filtros.anoEstudo
+    ? aluno.ano_curso?.toString() === filtros.anoEstudo
     : true;
 
   // Filtro de Série
-  const filtroSerie = filtros.serie ? aluno.ano_curso[1] === filtros.serie : true;
+  const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
 
   // Filtro de Período
   const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
 
-  // Depuração: resultado da filtragem de cada aluno
-  console.log(`Aluno ${aluno.aluno_nome}:`, filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo);
+  const resultado = filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo;
+  
+  console.log(`Aluno ${aluno.aluno_nome}: ${resultado ? "Passou no filtro" : "Não passou no filtro"}`);
 
-  return filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo;
+  return resultado;
 });
 
   return (
