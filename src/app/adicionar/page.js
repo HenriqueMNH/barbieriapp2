@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";  // Importa o axios para as requisições API
 import styles from "./page.module.css";
 
 export default function AdicionarAluno() {
   const [telaAtual, setTelaAtual] = useState("menu");
+  const [formularioNotas, setFormularioNotas] = useState(false);  // Novo estado para controlar o formulário de notas
 
   // Estados para informações do aluno
   const [nome, setNome] = useState("");
@@ -20,7 +22,7 @@ export default function AdicionarAluno() {
   const [anoCurso, setAnoCurso] = useState("");
   const [eliminacaoData, setEliminacaoData] = useState("");
   const [eliminacaoCausa, setEliminacaoCausa] = useState("");
-  const [observacao, setObservacao] = useState("");
+  const [observacao, setObservacao] = useState(""); // Estado para observação
 
   // Estados para notas
   const [matematica, setMatematica] = useState("");
@@ -28,35 +30,70 @@ export default function AdicionarAluno() {
   const [estudosSociais, setEstudosSociais] = useState("");
   const [ciencias, setCiencias] = useState("");
 
-  const handleSalvarAluno = (e) => {
+  // Estado para o sexo
+  const [sexo, setSexo] = useState("");
+
+  const handleSalvarAluno = async (e) => {
     e.preventDefault();
-    setTelaAtual("notas");
+  
+    // Dados do aluno
+    const alunoData = {
+      aluno_nome: nome,
+      data_nascimento: dataNascimento,
+      cidade_natal: cidadeNatal,
+      nome_pai: nomePai,
+      nome_mae: nomeMae,
+      profissao_pai: profissaoPai,
+      nacionalidade_pai: nacionalidadePai,
+      residencia: residencia,
+      matricula_primitiva: matriculaPrimitiva,
+      matricula_ano_letivo: matriculaAnoLetivo,
+      ano_curso: anoCurso,
+      sexo: sexo,
+      observacao: observacao,
+      // Verifique se a data de eliminação é válida antes de enviar
+      eliminacao_data: eliminacaoData ? eliminacaoData : null,  // Se estiver vazio, envia null
+      eliminacao_causa: eliminacaoCausa,
+    };
+    
+    console.log("Dados do aluno enviados:", alunoData);
+    
+    try {
+      const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
+      console.log("Resposta do servidor:", alunoResponse);
+      const alunoId = alunoResponse.data.dados;
+
+      // Após salvar o aluno, mostramos o formulário de notas
+      setFormularioNotas(true);
+      
+      alert("Aluno cadastrado com sucesso! Agora, insira as notas.");
+
+    } catch (error) {
+      console.error("Erro ao cadastrar aluno:", error.response || error);
+      alert("Ocorreu um erro ao salvar as informações.");
+    }
   };
 
-  const handleSalvarNotas = (e) => {
+  const handleSalvarNotas = async (e) => {
     e.preventDefault();
-    console.log("Aluno cadastrado:", {
-      nome,
-      dataNascimento,
-      cidadeNatal,
-      nomePai,
-      nomeMae,
-      profissaoPai,
-      nacionalidadePai,
-      residencia,
-      matriculaPrimitiva,
-      matriculaAnoLetivo,
-      anoCurso,
-      eliminacaoData,
-      eliminacaoCausa,
+
+    const notasData = {
+      aluno_id: alunoId,  // Garantir que o ID do aluno seja enviado corretamente
       matematica,
       portugues,
-      estudosSociais,
+      estudos_sociais: estudosSociais,
       ciencias,
-      observacao,
-    });
-    setTelaAtual("menu");
-    resetForm();
+    };
+    
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, notasData);
+      alert("Notas cadastradas com sucesso!");
+      setTelaAtual("menu");
+      resetForm();
+    } catch (error) {
+      console.error("Erro ao cadastrar notas:", error);
+      alert("Ocorreu um erro ao salvar as notas.");
+    }
   };
 
   const resetForm = () => {
@@ -77,13 +114,8 @@ export default function AdicionarAluno() {
     setPortugues("");
     setEstudosSociais("");
     setCiencias("");
-    setObservacao("");
-  };
-
-  const isQuintoAnoDisponivel = () => {
-    if (!matriculaAnoLetivo) return false;
-    const anoMatricula = new Date(matriculaAnoLetivo).getFullYear();
-    return anoMatricula >= 2006;
+    setObservacao(""); // Resetando a observação
+    setSexo("");  // Limpar o campo sexo ao resetar o formulário
   };
 
   return (
@@ -115,12 +147,66 @@ export default function AdicionarAluno() {
             <option value="2">2º Ano</option>
             <option value="3">3º Ano</option>
             <option value="4">4º Ano</option>
-            {isQuintoAnoDisponivel() && <option value="5">5º Ano (Apenas para 2006+)</option>}
           </select>
+          
+          <select value={sexo} onChange={(e) => setSexo(e.target.value)} required className={styles.select}>
+            <option value="">Selecione o Sexo</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+            <option value="Outro">Outro</option>
+          </select>
+
+          <textarea 
+            placeholder="Observação (Opcional)" 
+            value={observacao} 
+            onChange={(e) => setObservacao(e.target.value)} 
+            className={styles.textarea}
+          ></textarea>
+
           <button type="submit" className={styles.button}>Próximo</button>
           <button type="button" className={styles.buttonSecundario} onClick={() => setTelaAtual("menu")}>Cancelar</button>
         </form>
       )}
+
+      {/* Formulário para notas */}
+{/* Formulário para notas */}
+{formularioNotas && (
+  <form onSubmit={handleSalvarNotas} className={styles.form}>
+    <input 
+      type="text" 
+      placeholder="Matemática" 
+      value={matematica} 
+      onChange={(e) => setMatematica(e.target.value)} 
+      className={styles.input} 
+    />
+    <input 
+      type="text" 
+      placeholder="Português" 
+      value={portugues} 
+      onChange={(e) => setPortugues(e.target.value)} 
+      className={styles.input} 
+    />
+    <input 
+      type="text" 
+      placeholder="Estudos Sociais" 
+      value={estudosSociais} 
+      onChange={(e) => setEstudosSociais(e.target.value)} 
+      className={styles.input} 
+    />
+    <input 
+      type="text" 
+      placeholder="Ciências" 
+      value={ciencias} 
+      onChange={(e) => setCiencias(e.target.value)} 
+      className={styles.input} 
+    />
+
+    <button type="submit" className={styles.button}>Salvar Notas</button>
+    <button type="button" className={styles.buttonSecundario} onClick={() => setFormularioNotas(false)}>Pular</button>
+  </form>
+)}
+
+      <button className={styles.button} onClick={() => window.history.back()}>Voltar</button>
     </div>
   );
 }
