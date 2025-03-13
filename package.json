@@ -4,9 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "react-scripts build",
     "start": "next start",
+    "dist": "electron-builder",
     "lint": "next lint"
+  },
+  "build": {
+    "win": {
+      "forceSymlink": false
+    }
   },
   "dependencies": {
     "axios": "^1.8.1",
@@ -29,5 +35,9 @@
   "bugs": {
     "url": "https://github.com/HenriqueMNH/barbieriapp2/issues"
   },
-  "homepage": "https://github.com/HenriqueMNH/barbieriapp2#readme"
+  "homepage": "https://github.com/HenriqueMNH/barbieriapp2#readme",
+  "devDependencies": {
+    "electron-builder": "^25.1.8",
+    "electron-packager": "^17.1.2"
+  }
 }

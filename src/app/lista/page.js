@@ -1,24 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import styles from "./page.module.css";
 
 export default function ListaAlunos() {
+  const router = useRouter();
+
   const [alunos, setAlunos] = useState([]);
   const [filtros, setFiltros] = useState({
     ano: "",
     anoEstudo: "",
     serie: "",
     periodo: "",
+    sexo: "",
+  });
+  const [notas, setNotas] = useState([]);
+  const [alunoSelecionado, setAlunoSelecionado] = useState(null);
+  const [modalAberto, setModalAberto] = useState(false);
+  const [notasEditando, setNotasEditando] = useState({
+    matematica: "",
+    portugues: "",
+    estudos_sociais: "",
+    ciencias: ""
   });
 
-  // Requisição para pegar a lista de alunos
   useEffect(() => {
     const fetchAlunos = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:3333/alunos");
-        setAlunos(response.data.dados); // Atualiza a lista de alunos
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos`);
+        setAlunos(response.data.dados);
       } catch (error) {
         console.error("Erro ao buscar alunos:", error);
       }
@@ -27,154 +39,165 @@ export default function ListaAlunos() {
     fetchAlunos();
   }, []);
 
-  // Função para validar as matrículas
-  const validarMatricula = (aluno) => {
-    if (!aluno.matriculaPrimitiva || !aluno.matriculaAtual) {
-      return "Erro na matrícula: dados de matrícula ausentes.";
-    }
-
-    const anoPrimitivo = parseInt(aluno.matriculaPrimitiva.split("/")[2]);
-    const anoLetivo = parseInt(aluno.matriculaAtual.split("/")[2]);
-    const anosEsperados = parseInt(aluno.anoCurso[0]) - 1;
-
-    if (anoLetivo - anoPrimitivo !== anosEsperados) {
-      return "Erro na matrícula: a diferença de anos não corresponde ao ano de estudo.";
-    }
-    return "";
-  };
-
-  // Função para lidar com alterações nos filtros
   const handleFiltroChange = (e) => {
     setFiltros({ ...filtros, [e.target.name]: e.target.value });
   };
 
-  // Função para resetar os filtros
   const resetarFiltros = () => {
     setFiltros({
       ano: "",
       anoEstudo: "",
       serie: "",
       periodo: "",
+      sexo: "",
     });
   };
 
-// Função para filtrar os alunos com base nos filtros
-const alunosFiltrados = alunos.filter((aluno) => {
-  console.log("Filtros aplicados:", filtros);
-  console.log("Aluno sendo filtrado:", aluno);
+  const filtrosAtivos = Object.values(filtros).some((valor) => valor !== "");
 
-  // Filtro de Ano de Matrícula (ano_letivo)
-  const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
+  const alunosFiltrados = alunos.filter((aluno) => {
+    const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
+    const filtroAnoEstudo = filtros.anoEstudo ? aluno.ano_curso?.toString() === filtros.anoEstudo : true;
+    const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
+    const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
+    const filtroSexo = filtros.sexo ? aluno.sexo === filtros.sexo : true;
+    return filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo;
+  });
 
-  // Filtro de Ano de Estudo (corrigido para evitar erro de tipo)
-  const filtroAnoEstudo = filtros.anoEstudo
-    ? aluno.ano_curso?.toString() === filtros.anoEstudo
-    : true;
+  const buscarNotas = async (aluno) => {
+    try {
+      if (!aluno || !aluno.id) {
+        alert("Aluno não selecionado corretamente.");
+        return;
+      }
 
-  // Filtro de Série
-  const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+      
+      if (response.data.sucesso && response.data.dados.length > 0) {
+        setNotas(response.data.dados);
+      } else {
+        setNotas([]);
+        alert("Nenhuma nota encontrada para este aluno.");
+      }
+      
+      setAlunoSelecionado(aluno);
+      setModalAberto(true);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        alert("Nenhuma nota encontrada para este aluno.");
+      } else {
+        console.error("Erro ao buscar notas:", error);
+        alert("Erro ao carregar notas. Tente novamente.");
+      }
+      setNotas([]);
+    }
+  };
 
-  // Filtro de Período
-  const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
+  const salvarNotas = async () => {
+    if (!alunoSelecionado || !alunoSelecionado.id) {
+      alert("Aluno não selecionado corretamente.");
+      return;
+    }
 
-  const resultado = filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo;
-  
-  console.log(`Aluno ${aluno.aluno_nome}: ${resultado ? "Passou no filtro" : "Não passou no filtro"}`);
-
-  return resultado;
-});
+    try {
+      await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/notas/${alunoSelecionado.id}`, notasEditando);
+      alert("Notas editadas com sucesso!");
+      setModalAberto(false);
+      buscarNotas(alunoSelecionado); // Atualiza as notas após salvar
+    } catch (error) {
+      console.error("Erro ao salvar notas:", error);
+      alert("Erro ao salvar as notas.");
+    }
+  };
 
   return (
     <div className={styles.listaPage}>
+      <button onClick={() => router.back()} className={styles.voltarButton}>⬅ Voltar</button>
       <h1>Lista de Alunos</h1>
 
-      <div className={styles.filters}>
-        <select
-          name="ano"
-          value={filtros.ano}
-          onChange={handleFiltroChange}
-          className={styles.select}
-        >
-          <option value="">Ano</option>
-          {[...Array(2025 - 1940)].map((_, i) => (
-            <option key={i} value={1940 + i}>
-              {1940 + i}
-            </option>
-          ))}
-        </select>
+      {modalAberto && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h2>Editar Notas de {alunoSelecionado?.aluno_nome || "Aluno"}</h2>
+            <div>
+              <label>Matemática</label>
+              <input 
+                type="text" 
+                value={notasEditando.matematica || ""} 
+                onChange={(e) => setNotasEditando({ ...notasEditando, matematica: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Português</label>
+              <input 
+                type="text" 
+                value={notasEditando.portugues || ""} 
+                onChange={(e) => setNotasEditando({ ...notasEditando, portugues: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Estudos Sociais</label>
+              <input 
+                type="text" 
+                value={notasEditando.estudos_sociais || ""} 
+                onChange={(e) => setNotasEditando({ ...notasEditando, estudos_sociais: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Ciências</label>
+              <input 
+                type="text" 
+                value={notasEditando.ciencias || ""} 
+                onChange={(e) => setNotasEditando({ ...notasEditando, ciencias: e.target.value })}
+              />
+            </div>
+            <button onClick={salvarNotas}>Salvar</button>
+            <button onClick={() => setModalAberto(false)}>Fechar</button>
+          </div>
+        </div>
+      )}
 
-        <select
-          name="anoEstudo"
-          value={filtros.anoEstudo}
-          onChange={handleFiltroChange}
-          className={styles.select}
-        >
-          <option value="">Ano de Estudo</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-
-        <select
-          name="serie"
-          value={filtros.serie}
-          onChange={handleFiltroChange}
-          className={styles.select}
-        >
-          <option value="">Série</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="D">D</option>
-        </select>
-
-        <select
-          name="periodo"
-          value={filtros.periodo}
-          onChange={handleFiltroChange}
-          className={styles.select}
-        >
-          <option value="">Período</option>
-          <option value="Manhã">Manhã</option>
-          <option value="Tarde">Tarde</option>
-        </select>
-
-        <button onClick={resetarFiltros} className={styles.resetButton}>
-          Resetar Filtros
-        </button>
+      <div className={styles.filtros}>
+        <input type="text" name="ano" placeholder="Ano" value={filtros.ano} onChange={handleFiltroChange} />
+        <input type="text" name="anoEstudo" placeholder="Ano de Estudo" value={filtros.anoEstudo} onChange={handleFiltroChange} />
+        <input type="text" name="serie" placeholder="Série" value={filtros.serie} onChange={handleFiltroChange} />
+        <input type="text" name="periodo" placeholder="Período" value={filtros.periodo} onChange={handleFiltroChange} />
+        <input type="text" name="sexo" placeholder="Sexo" value={filtros.sexo} onChange={handleFiltroChange} />
+        <button onClick={resetarFiltros}>Resetar Filtros</button>
       </div>
 
-      {/* Exibe a tabela de alunos filtrados */}
-      {alunosFiltrados.length > 0 ? (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Data de Nascimento</th>
-              <th>Naturalidade</th>
-              <th>Nome do Pai</th>
-              <th>Nome da Mãe</th>
-              <th>Profissão do Pai</th>
-              <th>Nacionalidade do Pai</th>
-              <th>Residência</th>
-              <th>Matrícula Primitiva</th>
-              <th>Matrícula do Ano Letivo</th>
-              <th>Ano do Curso</th>
-              <th>Período</th>
-              <th>Observações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {alunosFiltrados.map((aluno) => {
-              const erroMatricula = validarMatricula(aluno);
-              return (
+      {filtrosAtivos ? (
+        alunosFiltrados.length > 0 ? (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Data de Nascimento</th>
+                <th>Naturalidade</th>
+                <th>Sexo</th>
+                <th>Nome do Pai</th>
+                <th>Nome da Mãe</th>
+                <th>Profissão do Pai</th>
+                <th>Nacionalidade do Pai</th>
+                <th>Residência</th>
+                <th>Matrícula Primitiva</th>
+                <th>Matrícula do Ano Letivo</th>
+                <th>Ano do Curso</th>
+                <th>Período</th>
+                <th>Observações</th>
+                <th>Notas</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {alunosFiltrados.map((aluno) => (
                 <tr key={aluno.id}>
                   <td>{aluno.id}</td>
                   <td>{aluno.aluno_nome}</td>
                   <td>{aluno.data_nascimento}</td>
-                  <td>{aluno.cidade_natal}</td>
+                  <td>{aluno.naturalidade}</td>
+                  <td>{aluno.sexo}</td>
                   <td>{aluno.nome_pai}</td>
                   <td>{aluno.nome_mae}</td>
                   <td>{aluno.profissao_pai}</td>
@@ -184,16 +207,20 @@ const alunosFiltrados = alunos.filter((aluno) => {
                   <td>{aluno.matricula_ano_letivo}</td>
                   <td>{aluno.ano_curso}</td>
                   <td>{aluno.periodo}</td>
-                  <td className={erroMatricula ? "erroMatricula" : ""}>
-                    {erroMatricula || aluno.observacao}
+                  <td>{aluno.observacoes}</td>
+                  <td>
+                    <button onClick={() => buscarNotas(aluno)}>Ver Notas</button>
+                    <button onClick={() => handleEditarNota(aluno)}>Editar Notas</button>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className={styles.noResults}>Nenhum aluno encontrado com os filtros aplicados.</p>
+        )
       ) : (
-        <p className={styles.noResults}>Nenhum aluno encontrado com os filtros aplicados.</p>
+        <p className={styles.noResults}>Use pelo menos um filtro para visualizar os alunos.</p>
       )}
     </div>
   );

@@ -18,7 +18,7 @@ export default function Home() {
   useEffect(() => {
     const fetchEscolas = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:3333/escolas");
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/escolas`);
         console.log(response.data);  // Verifique a resposta da API
         setEscolas(response.data.dados); // Assumindo que a resposta contém o campo `dados` com as escolas
       } catch (error) {
@@ -38,7 +38,7 @@ export default function Home() {
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:3333/usuarios/login", {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`, {
         escola_id: escola,
         senha: senha,
       });
