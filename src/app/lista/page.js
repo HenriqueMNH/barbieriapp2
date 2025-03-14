@@ -19,12 +19,17 @@ export default function ListaAlunos() {
   const [notas, setNotas] = useState([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
+  const [modalVerNotasAberto, setModalVerNotasAberto] = useState(false); 
   const [notasEditando, setNotasEditando] = useState({
     matematica: "",
     portugues: "",
     estudos_sociais: "",
     ciencias: ""
   });
+
+  useEffect(() => {
+    console.log("Estado do modalVerNotasAberto:", modalVerNotasAberto);
+  }, [modalVerNotasAberto]);
 
   useEffect(() => {
     const fetchAlunos = async () => {
@@ -64,6 +69,32 @@ export default function ListaAlunos() {
     return filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo;
   });
 
+  const verNotas = async (aluno) => {
+    try {
+      if (!aluno || !aluno.id) {
+        alert("Aluno não selecionado corretamente.");
+        return;
+      }
+  
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+  
+      if (response.data.sucesso && response.data.dados.length > 0) {
+        setNotas(response.data.dados);
+      } else {
+        setNotas([]); 
+        alert("Nenhuma nota encontrada para este aluno.");
+      }
+  
+      setAlunoSelecionado(aluno);
+      setModalVerNotasAberto(true); // Abrir o modal de "Ver Notas"
+      setModalAberto(false); // Fechar o modal de "Editar Notas"
+    } catch (error) {
+      console.error("Erro ao buscar notas:", error);
+      alert("Erro ao carregar notas.");
+      setNotas([]);
+    }
+  };
+
   const buscarNotas = async (aluno) => {
     try {
       if (!aluno || !aluno.id) {
@@ -81,7 +112,8 @@ export default function ListaAlunos() {
       }
       
       setAlunoSelecionado(aluno);
-      setModalAberto(true);
+      setModalAberto(true); // Abrir o modal de "Editar Notas"
+      setModalVerNotasAberto(false); // Fechar o modal de "Ver Notas"
     } catch (error) {
       if (error.response && error.response.status === 404) {
         alert("Nenhuma nota encontrada para este aluno.");
@@ -109,6 +141,10 @@ export default function ListaAlunos() {
       alert("Erro ao salvar as notas.");
     }
   };
+
+  const buscarAluno = async (aluno) => {
+    
+  }
 
   return (
     <div className={styles.listaPage}>
@@ -157,6 +193,29 @@ export default function ListaAlunos() {
         </div>
       )}
 
+      {modalVerNotasAberto && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h2>Notas de {alunoSelecionado?.aluno_nome || "Aluno"}</h2>
+            {notas.length > 0 ? (
+              <ul>
+                {notas.map((nota, index) => (
+                  <li key={index}>
+                    <strong>Matemática:</strong> {nota.matematica} <br />
+                    <strong>Português:</strong> {nota.portugues} <br />
+                    <strong>Estudos Sociais:</strong> {nota.estudos_sociais} <br />
+                    <strong>Ciências:</strong> {nota.ciencias} <br />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhuma nota cadastrada para este aluno.</p>
+            )}
+            <button onClick={() => setModalVerNotasAberto(false)}>Fechar</button>
+          </div>
+        </div>
+      )}
+
       <div className={styles.filtros}>
         <input type="text" name="ano" placeholder="Ano" value={filtros.ano} onChange={handleFiltroChange} />
         <input type="text" name="anoEstudo" placeholder="Ano de Estudo" value={filtros.anoEstudo} onChange={handleFiltroChange} />
@@ -173,21 +232,21 @@ export default function ListaAlunos() {
               <tr>
                 <th>ID</th>
                 <th>Nome</th>
-                <th>Data de Nascimento</th>
+                <th>Data Nascimento</th>
                 <th>Naturalidade</th>
                 <th>Sexo</th>
-                <th>Nome do Pai</th>
-                <th>Nome da Mãe</th>
-                <th>Profissão do Pai</th>
-                <th>Nacionalidade do Pai</th>
+                <th>Nome Pai</th>
+                <th>Nome Mãe</th>
+                <th>Profissão Pai</th>
+                <th>Nacionalidade Pai</th>
                 <th>Residência</th>
                 <th>Matrícula Primitiva</th>
-                <th>Matrícula do Ano Letivo</th>
-                <th>Ano do Curso</th>
+                <th>Matrícula Ano Letivo</th>
+                <th>Ano Curso</th>
                 <th>Período</th>
                 <th>Observações</th>
-                <th>Notas</th>
-                <th>Ações</th>
+                <th>Ver Notas</th>
+                <th>Edição</th>
               </tr>
             </thead>
             <tbody>
@@ -209,18 +268,22 @@ export default function ListaAlunos() {
                   <td>{aluno.periodo}</td>
                   <td>{aluno.observacoes}</td>
                   <td>
-                    <button onClick={() => buscarNotas(aluno)}>Ver Notas</button>
-                    <button onClick={() => handleEditarNota(aluno)}>Editar Notas</button>
+                    <button onClick={() => verNotas(aluno)}>Ver Notas</button>
+                  </td>
+                  <td>
+                    <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
+                    <button onClick={() => buscarAluno(aluno)}>Editar Aluno</button>
+
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <p className={styles.noResults}>Nenhum aluno encontrado com os filtros aplicados.</p>
+          <p>Nenhum aluno encontrado com os filtros aplicados.</p>
         )
       ) : (
-        <p className={styles.noResults}>Use pelo menos um filtro para visualizar os alunos.</p>
+        <p>Filtros não aplicados.</p>
       )}
     </div>
   );
