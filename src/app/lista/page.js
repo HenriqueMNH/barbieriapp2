@@ -27,6 +27,32 @@ export default function ListaAlunos() {
     ciencias: ""
   });
 
+    // Função para abrir o modal e carregar os dados do aluno
+    const abrirModalEdicao = (aluno) => {
+      setAlunoSelecionado(aluno);
+      setModalAberto(true);
+    };
+
+      // Função para fechar o modal
+  const fecharModal = () => {
+    setModalAberto(false);
+    setAlunoSelecionado(null);
+  };
+
+    // Função para atualizar os dados do aluno
+    const atualizarAluno = async () => {
+      try {
+        await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${alunoSelecionado.id}`, alunoSelecionado);
+        alert("Aluno atualizado com sucesso!");
+        carregarAlunos(); // Recarrega a lista após edição
+        fecharModal();
+      } catch (error) {
+        alert("Erro ao atualizar aluno!");
+        console.error(error);
+      }
+    };
+  
+
   useEffect(() => {
     console.log("Estado do modalVerNotasAberto:", modalVerNotasAberto);
   }, [modalVerNotasAberto]);
@@ -130,22 +156,44 @@ export default function ListaAlunos() {
       alert("Aluno não selecionado corretamente.");
       return;
     }
-
+  
     try {
       await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/notas/${alunoSelecionado.id}`, notasEditando);
       alert("Notas editadas com sucesso!");
+      
+      setNotas((prevNotas) => prevNotas.map((nota) =>
+        nota.aluno_id === alunoSelecionado.id ? { ...nota, ...notasEditando } : nota
+      ));
+  
       setModalAberto(false);
-      buscarNotas(alunoSelecionado); // Atualiza as notas após salvar
     } catch (error) {
       console.error("Erro ao salvar notas:", error);
       alert("Erro ao salvar as notas.");
     }
   };
-
+  
   const buscarAluno = async (aluno) => {
-    
-  }
-
+    try {
+      if (!aluno || !aluno.id) {
+        alert("Aluno não selecionado corretamente.");
+        return;
+      }
+  
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${aluno.id}`);
+  
+      if (response.data.sucesso && response.data.dados) {
+        setAlunoSelecionado(response.data.dados);
+      } else {
+        alert("Nenhum dado encontrado para este aluno.");
+        setAlunoSelecionado(null);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar aluno:", error);
+      alert("Erro ao carregar dados do aluno.");
+      setAlunoSelecionado(null);
+    }
+  };
+  
   return (
     <div className={styles.listaPage}>
       <button onClick={() => router.back()} className={styles.voltarButton}>⬅ Voltar</button>
@@ -272,7 +320,7 @@ export default function ListaAlunos() {
                   </td>
                   <td>
                     <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
-                    <button onClick={() => buscarAluno(aluno)}>Editar Aluno</button>
+                    <button onClick={() => abrirModalEdicao(aluno)}>Editar Aluno</button>
 
                   </td>
                 </tr>
@@ -287,4 +335,7 @@ export default function ListaAlunos() {
       )}
     </div>
   );
+
+
+  
 }
