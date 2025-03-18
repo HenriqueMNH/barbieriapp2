@@ -108,6 +108,12 @@ export default function ListaAlunos() {
     }
   };
 
+  const formatarData = (data) => {
+    const novaData = new Date(data);
+    return novaData.toISOString().slice(0, 19).replace("T", " "); // 'YYYY-MM-DD HH:MM:SS'
+  };
+  
+
   const buscarNotas = async (aluno) => {
     try {
       if (!aluno || !aluno.id) {
@@ -205,11 +211,13 @@ export default function ListaAlunos() {
       const dataNascimentoFormatada = alunoEditando.data_nascimento.split("T")[0];
   
       // Atualizando o objeto do aluno com a cidade natal
-      const alunoAtualizado = {
-        ...alunoEditando,
-        cidade_natal: alunoEditando.cidade_natal,  // Usando cidade_natal
-        data_nascimento: dataNascimentoFormatada,
-      };
+const alunoAtualizado = {
+  ...alunoEditando,
+  cidade_natal: alunoEditando.cidade_natal,
+  data_nascimento: formatarData(alunoEditando.data_nascimento),
+  matricula_primitiva: formatarData(alunoEditando.matricula_primitiva),
+  matricula_ano_letivo: formatarData(alunoEditando.matricula_ano_letivo),
+};
   
       // Enviando os dados atualizados para o backend
       await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${alunoSelecionado.id}`, alunoAtualizado);
