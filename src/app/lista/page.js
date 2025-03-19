@@ -10,6 +10,7 @@ export default function ListaAlunos() {
 
   const [alunos, setAlunos] = useState([]);
   const [filtros, setFiltros] = useState({
+    nome: "", // Novo filtro
     ano: "",
     anoEstudo: "",
     serie: "",
@@ -63,6 +64,7 @@ export default function ListaAlunos() {
 
   const resetarFiltros = () => {
     setFiltros({
+      nome: "", // Novo filtro
       ano: "",
       anoEstudo: "",
       serie: "",
@@ -74,11 +76,13 @@ export default function ListaAlunos() {
   const filtrosAtivos = Object.values(filtros).some((valor) => valor !== "");
 
   const alunosFiltrados = alunos.filter((aluno) => {
+    const filtroNome = filtros.nome ? aluno.aluno_nome.toLowerCase().includes(filtros.nome.toLowerCase()) : true;
     const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
     const filtroAnoEstudo = filtros.anoEstudo ? aluno.ano_curso?.toString() === filtros.anoEstudo : true;
     const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
     const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
     const filtroSexo = filtros.sexo ? aluno.sexo === filtros.sexo : true;
+    return filtroNome && filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo ;
   });
 
   const verNotas = async (aluno) => {
@@ -431,6 +435,7 @@ const alunoAtualizado = {
       )}
 
       <div className={styles.filtros}>
+        <input type="text" name="nome" placeholder="Nome" value={filtros.nome} onChange={handleFiltroChange}/>
         <input type="text" name="ano" placeholder="Ano" value={filtros.ano} onChange={handleFiltroChange} />
         <input type="text" name="anoEstudo" placeholder="Ano de Estudo" value={filtros.anoEstudo} onChange={handleFiltroChange} />
         <input type="text" name="serie" placeholder="Série" value={filtros.serie} onChange={handleFiltroChange} />
