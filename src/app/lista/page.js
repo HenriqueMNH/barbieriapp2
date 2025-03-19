@@ -79,7 +79,6 @@ export default function ListaAlunos() {
     const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
     const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
     const filtroSexo = filtros.sexo ? aluno.sexo === filtros.sexo : true;
-    return filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo;
   });
 
   const verNotas = async (aluno) => {
