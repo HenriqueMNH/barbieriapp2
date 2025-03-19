@@ -9,6 +9,7 @@ export default function AdicionarAluno() {
   const [formularioNotas, setFormularioNotas] = useState(false);  // Novo estado para controlar o formulário de notas
 
   // Estados para informações do aluno
+  const [alunoId, setAlunoId] = useState(null);
   const [nome, setNome] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [cidadeNatal, setCidadeNatal] = useState("");
@@ -61,9 +62,8 @@ export default function AdicionarAluno() {
     try {
       const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
       console.log("Resposta do servidor:", alunoResponse);
-      const alunoId = alunoResponse.data.dados;
-
-      // Após salvar o aluno, mostramos o formulário de notas
+      setAlunoId(alunoResponse.data.dados);  // Armazene o alunoId
+            // Após salvar o aluno, mostramos o formulário de notas
       setFormularioNotas(true);
       
       alert("Aluno cadastrado com sucesso! Agora, insira as notas.");
@@ -78,13 +78,13 @@ export default function AdicionarAluno() {
     e.preventDefault();
 
     const notasData = {
-      aluno_id: alunoId,  // Garantir que o ID do aluno seja enviado corretamente
+      aluno_id: alunoId,  // Agora você pode usar o alunoId aqui
       matematica,
       portugues,
       estudos_sociais: estudosSociais,
       ciencias,
     };
-    
+        
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, notasData);
       alert("Notas cadastradas com sucesso!");
