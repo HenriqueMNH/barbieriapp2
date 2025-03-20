@@ -85,6 +85,34 @@ export default function ListaAlunos() {
     return filtroNome && filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo ;
   });
 
+  const deletarAluno = async (aluno) => {
+    if (!aluno || !aluno.id) {
+      alert("ID do aluno inválido.");
+      return;
+    }
+  
+    if (!confirm("Tem certeza que deseja excluir este aluno?")) {
+      return;
+    }
+  
+    try {
+      console.log("ID enviado para deletar:", aluno.id);
+  
+      // Deletando o aluno baseado no id
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${aluno.id}`);
+  
+      alert("Aluno excluído com sucesso!");
+  
+      // Buscar novamente a lista do backend para garantir a atualização correta
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos`);
+      setAlunos(response.data.dados);
+    } catch (error) {
+      console.error("Erro ao excluir aluno:", error);
+      alert("Erro ao excluir aluno. Verifique a conexão ou tente novamente.");
+    }
+  };
+      
+
   const verNotas = async (aluno) => {
     try {
       if (!aluno || !aluno.id) {
@@ -492,6 +520,8 @@ const alunoAtualizado = {
                   <td>
                     <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
                     <button onClick={() => editarAluno(aluno)}>Editar Aluno</button>
+                    <button onClick={() => deletarAluno(aluno)}>Excluir Aluno</button>
+
                   </td>
                 </tr>
               ))}
