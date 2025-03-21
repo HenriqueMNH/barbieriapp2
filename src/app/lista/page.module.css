@@ -125,6 +125,21 @@
     border-radius: 5px;
     cursor: pointer;
   }
+
+  .pdfButton {
+    background-color: #4caf50;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 8px;
+  }
+  
+  .pdfButton:hover {
+    background-color: #45a049;
+  }
+  
   
   .modalContent button:hover {
     background: #0056b3;

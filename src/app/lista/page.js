@@ -9,8 +9,8 @@ export default function ListaAlunos() {
   const router = useRouter();
 
   const [alunos, setAlunos] = useState([]);
-  const [filtros, setFiltros] = useState({
-    nome: "", // Novo filtro
+  const [filtros, setFiltros] = useState({ // Aqui é onde está os dados do filtro
+    nome: "", 
     ano: "",
     anoEstudo: "",
     serie: "",
@@ -19,19 +19,20 @@ export default function ListaAlunos() {
   });
   const [notas, setNotas] = useState([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
+  const [anoCurso, setAnoCurso] = useState('');  // Armazenando o ano selecionado
   const [modalAberto, setModalAberto] = useState(false);
   const [modalVerNotasAberto, setModalVerNotasAberto] = useState(false); 
-  const [notasEditando, setNotasEditando] = useState({
+  const [notasEditando, setNotasEditando] = useState({ // Aqui é onde está os dados das notas
     matematica: "",
     portugues: "",
     estudos_sociais: "",
     ciencias: ""
   });
   const [modalEditarAlunoAberto, setModalEditarAlunoAberto] = useState(false);
-  const [alunoEditando, setAlunoEditando] = useState({
+  const [alunoEditando, setAlunoEditando] = useState({ // Aqui os dados do aluno
     aluno_nome: "",
     data_nascimento: "",
-    cidade_natal: "",  // Garantindo que sempre seja uma string vazia
+    cidade_natal: "",  
     sexo: "",
     nome_pai: "",
     nome_mae: "",
@@ -64,7 +65,7 @@ export default function ListaAlunos() {
 
   const resetarFiltros = () => {
     setFiltros({
-      nome: "", // Novo filtro
+      nome: "", 
       ano: "",
       anoEstudo: "",
       serie: "",
@@ -73,9 +74,36 @@ export default function ListaAlunos() {
     });
   };
 
+  const gerarPdfAluno = async (aluno) => {
+    if (!aluno || !aluno.id) {
+      alert("Aluno não selecionado corretamente.");
+      return;
+    }
+  
+    try {
+      // Envia uma solicitação para o backend para gerar o PDF
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${aluno.id}/pdf`, {
+        responseType: "blob", // Para receber o arquivo PDF como um blob
+      });
+  
+      // Cria um link temporário para baixar o arquivo PDF
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `Informacoes_${aluno.aluno_nome}.pdf`;
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+      alert("Erro ao gerar o PDF. Tente novamente.");
+    }
+  };
+  
+
+
   const filtrosAtivos = Object.values(filtros).some((valor) => valor !== "");
 
-  const alunosFiltrados = alunos.filter((aluno) => {
+  const alunosFiltrados = alunos.filter((aluno) => { // Aqui ele está realizando a filtragem 
     const filtroNome = filtros.nome ? aluno.aluno_nome.toLowerCase().includes(filtros.nome.toLowerCase()) : true;
     const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
     const filtroAnoEstudo = filtros.anoEstudo ? aluno.ano_curso?.toString() === filtros.anoEstudo : true;
@@ -85,7 +113,7 @@ export default function ListaAlunos() {
     return filtroNome && filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo ;
   });
 
-  const deletarAluno = async (aluno) => {
+  const deletarAluno = async (aluno) => { //Aqui ele realiza a exclusão de alunos 
     if (!aluno || !aluno.id) {
       alert("ID do aluno inválido.");
       return;
@@ -113,7 +141,7 @@ export default function ListaAlunos() {
   };
       
 
-  const verNotas = async (aluno) => {
+  const verNotas = async (aluno) => { // Aqui ele vai poder ver as notas 
     try {
       if (!aluno || !aluno.id) {
         alert("Aluno não selecionado corretamente.");
@@ -139,13 +167,13 @@ export default function ListaAlunos() {
     }
   };
 
-  const formatarData = (data) => {
+  const formatarData = (data) => { //Isso serve para deixar a data mas bonita e se livrar das outras informações, deixando apenas o dia/mês/ano para ver
     const novaData = new Date(data);
     return novaData.toISOString().slice(0, 19).replace("T", " "); // 'YYYY-MM-DD HH:MM:SS'
   };
   
 
-  const buscarNotas = async (aluno) => {
+  const buscarNotas = async (aluno) => { //Aqui a gente pega as notas para realizar uma edição caso queira 
     try {
       if (!aluno || !aluno.id) {
         alert("Aluno não selecionado corretamente.");
@@ -191,7 +219,7 @@ export default function ListaAlunos() {
     }
   };
 
-  const salvarNotas = async () => {
+  const salvarNotas = async () => { //E aqui as notas seram editadas com sucesso 
     if (!alunoSelecionado || !alunoSelecionado.id) {
       alert("Aluno não selecionado corretamente.");
       return;
@@ -209,7 +237,7 @@ export default function ListaAlunos() {
     }
   };
 
-  const editarAluno = (aluno) => {
+  const editarAluno = (aluno) => { //Ainda edição, mas dessa vez para as informações dos alunos 
     setAlunoSelecionado(aluno);
     setAlunoEditando({
       aluno_nome: aluno.aluno_nome || "",
@@ -242,8 +270,8 @@ export default function ListaAlunos() {
       const dataNascimentoFormatada = alunoEditando.data_nascimento.split("T")[0];
   
       // Atualizando o objeto do aluno com a cidade natal
-const alunoAtualizado = {
-  ...alunoEditando,
+const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de se ver, então. Aqui ele está usando ela com todos os itens que usam data
+  ...alunoEditando, 
   cidade_natal: alunoEditando.cidade_natal,
   data_nascimento: formatarData(alunoEditando.data_nascimento),
   matricula_primitiva: formatarData(alunoEditando.matricula_primitiva),
@@ -270,12 +298,13 @@ const alunoAtualizado = {
     }
   };
       
-  return (
+  return ( 
+    
     <div className={styles.listaPage}>
       <button onClick={() => router.back()} className={styles.voltarButton}>⬅ Voltar</button>
       <h1>Lista de Alunos</h1>
 
-      {modalAberto && (
+      {modalAberto && ( //Modal para editar as notas do aluno cujo botão editar notas for clicado 
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h2>Editar Notas de {alunoSelecionado?.aluno_nome || "Aluno"}</h2>
@@ -317,7 +346,7 @@ const alunoAtualizado = {
         </div>
       )}
 
-      {modalVerNotasAberto && (
+      {modalVerNotasAberto && ( // Já esse modal aqui só vê as notas mesmo 
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h2>Notas de {alunoSelecionado?.aluno_nome || "Aluno"}</h2>
@@ -340,7 +369,7 @@ const alunoAtualizado = {
         </div>
       )}
 
-      {modalEditarAlunoAberto && (
+      {modalEditarAlunoAberto && ( //Modal para editar os alunos 
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h2>Editar Informações do Aluno</h2>
@@ -462,17 +491,18 @@ const alunoAtualizado = {
         </div>
       )}
 
-      <div className={styles.filtros}>
+      <div className={styles.filtros}> 
         <input type="text" name="nome" placeholder="Nome" value={filtros.nome} onChange={handleFiltroChange}/>
         <input type="text" name="ano" placeholder="Ano" value={filtros.ano} onChange={handleFiltroChange} />
         <input type="text" name="anoEstudo" placeholder="Ano de Estudo" value={filtros.anoEstudo} onChange={handleFiltroChange} />
         <input type="text" name="serie" placeholder="Série" value={filtros.serie} onChange={handleFiltroChange} />
         <input type="text" name="periodo" placeholder="Período" value={filtros.periodo} onChange={handleFiltroChange} />
         <input type="text" name="sexo" placeholder="Sexo" value={filtros.sexo} onChange={handleFiltroChange} />
-        <button onClick={resetarFiltros}>Resetar Filtros</button>
+        <button onClick={resetarFiltros}>Resetar Filtros</button> 
       </div>
 
-      {filtrosAtivos ? (
+
+      {filtrosAtivos ? (  // Aqui é os dados que estão nos retangulos azuis 
         alunosFiltrados.length > 0 ? (
           <table className={styles.table}>
             <thead>
@@ -497,10 +527,12 @@ const alunoAtualizado = {
               </tr>
             </thead>
             <tbody>
-              {alunosFiltrados.map((aluno) => (
+              {alunosFiltrados.map((aluno) => ( //Já aqui ele está jogando as informações do aluno em questão 
                 <tr key={aluno.id}>
                   <td>{aluno.id}</td>
-                  <td>{aluno.aluno_nome}</td>
+                  <td>{aluno.aluno_nome}
+                  <button className={styles.pdfButton}onClick={() => gerarPdfAluno(aluno)}>Gerar PDF</button>
+                  </td>
                   <td>{new Date(aluno.data_nascimento).toLocaleDateString()}</td>
                   <td>{aluno.cidade_natal}</td>
                   <td>{aluno.sexo}</td>
@@ -514,8 +546,8 @@ const alunoAtualizado = {
                   <td>{aluno.ano_curso}</td>
                   <td>{aluno.periodo}</td>
                   <td>{aluno.observacoes}</td>
-                  <td>
-                    <button onClick={() => verNotas(aluno)}>Ver Notas</button>
+                  <td> 
+                    <button onClick={() => verNotas(aluno)}>Ver Notas</button> 
                   </td>
                   <td>
                     <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
@@ -525,7 +557,7 @@ const alunoAtualizado = {
                   </td>
                 </tr>
               ))}
-            </tbody>
+            </tbody> 
           </table>
         ) : (
           <p>Nenhum aluno encontrado com os filtros aplicados.</p>
