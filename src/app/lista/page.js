@@ -43,7 +43,7 @@ export default function ListaAlunos() {
     matricula_ano_letivo: "",
     ano_curso: "",
     periodo: "",
-    observacoes: ""
+    observacao: ""
   });
     
   useEffect(() => {
@@ -253,7 +253,7 @@ export default function ListaAlunos() {
       matricula_ano_letivo: aluno.matricula_ano_letivo || "",
       ano_curso: aluno.ano_curso || "",
       periodo: aluno.periodo || "",
-      observacoes: aluno.observacoes || "",
+      observacao: aluno.observacao || "",
     });
         setModalEditarAlunoAberto(true);
   };
@@ -481,8 +481,8 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
               <label>Observações</label>
               <input 
                 type="text" 
-                value={alunoEditando.observacoes} 
-                onChange={(e) => setAlunoEditando({ ...alunoEditando, observacoes: e.target.value })}
+                value={alunoEditando.observacao} 
+                onChange={(e) => setAlunoEditando({ ...alunoEditando, observacao: e.target.value })}
               />
               </div>
             <button onClick={salvarAlunoEditado}>Salvar</button>
@@ -545,7 +545,7 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
                   <td>{new Date(aluno.matricula_ano_letivo).toLocaleDateString()}</td>
                   <td>{aluno.ano_curso}</td>
                   <td>{aluno.periodo}</td>
-                  <td>{aluno.observacoes}</td>
+                  <td>{aluno.observacao}</td>
                   <td> 
                     <button onClick={() => verNotas(aluno)}>Ver Notas</button> 
                   </td>
