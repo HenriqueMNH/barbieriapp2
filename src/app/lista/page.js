@@ -430,7 +430,7 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
               />
               </div>
               <div>
-              <label>Nacionalidade do Pai</label>
+              <label>Nacionalidade Pai</label>
               <input 
                 type="text" 
                 value={alunoEditando.nacionalidade_pai} 
