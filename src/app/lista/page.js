@@ -255,7 +255,7 @@ export default function ListaAlunos() {
       ano_curso: aluno.ano_curso || "",
       periodo: aluno.periodo || "",
       observacao: aluno.observacao || "",
-      religiao: aluno.religiao || "",
+      religiao: aluno.religiao || ""  // Garantir que o valor seja uma string vazia, se não houver.
     });
         setModalEditarAlunoAberto(true);
   };
@@ -384,12 +384,12 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
               />
             </div>
             <div>
-              <label>Religião</label>
-              <input 
-                type="text" 
-                value={alunoEditando.religiao} 
-                onChange={(e) => setAlunoEditando({ ...alunoEditando, religiao: e.target.value })}
-              />
+            <label>Religião</label>
+<input 
+  type="text" 
+  value={alunoEditando.religiao} 
+  onChange={(e) => setAlunoEditando({ ...alunoEditando, religiao: e.target.value })}
+/>
             </div>
             <div>
               <label>Data de Nascimento</label>

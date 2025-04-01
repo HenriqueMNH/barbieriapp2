@@ -56,7 +56,7 @@ export default function AdicionarAluno() {
       // Verifique se a data de eliminação é válida antes de enviar
       eliminacao_data: eliminacaoData ? eliminacaoData : null,  // Se estiver vazio, envia null
       eliminacao_causa: eliminacaoCausa,
-      religiao: religiao,
+      religiao: religiao
     };
     
     console.log("Dados do aluno enviados:", alunoData);
@@ -118,7 +118,7 @@ export default function AdicionarAluno() {
     setCiencias("");
     setObservacao(""); // Resetando a observação
     setSexo("");  // Limpar o campo sexo ao resetar o formulário
-    setReligiao("");
+    setReligiao("")
   };
 
   return (

@@ -72,15 +72,16 @@ module.exports = {
             }
 
             const sql = `UPDATE alunos SET
-                aluno_nome = ?, data_nascimento = ?, cidade_natal = ?, nome_pai = ?, nome_mae = ?,
-                profissao_pai = ?, nacionalidade_pai = ?, residencia = ?, matricula_primitiva = ?,
-                matricula_ano_letivo = ?, ano_curso = ?, sexo = ?, observacao = ?, eliminacao_data = ?, eliminacao_causa = ?, religiao = ?
-                WHERE id = ?;`;
+            aluno_nome = ?, data_nascimento = ?, cidade_natal = ?, nome_pai = ?, nome_mae = ?,
+            profissao_pai = ?, nacionalidade_pai = ?, residencia = ?, matricula_primitiva = ?,
+            matricula_ano_letivo = ?, ano_curso = ?, sexo = ?, observacao = ?, eliminacao_data = ?, eliminacao_causa = ?, religiao = ?
+            WHERE id = ?;
+            `;
 
             const values = [
                 aluno_nome, data_nascimento, cidade_natal, nome_pai, nome_mae,
                 profissao_pai, nacionalidade_pai, residencia, matricula_primitiva,
-                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa, id, religiao
+                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa, religiao, id
             ];
 
             const [atualizaDados] = await db.query(sql, values);
