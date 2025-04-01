@@ -24,19 +24,19 @@ module.exports = {
             const {
                 aluno_nome, data_nascimento, cidade_natal, nome_pai, nome_mae = null,
                 profissao_pai, nacionalidade_pai, residencia, matricula_primitiva,
-                matricula_ano_letivo, ano_curso, sexo, observacao = null, eliminacao_data = null, eliminacao_causa = null
+                matricula_ano_letivo, ano_curso, sexo, observacao = null, eliminacao_data = null, eliminacao_causa = null, religiao = null
             } = request.body;
 
             const sql = `INSERT INTO alunos (
                 aluno_nome, data_nascimento, cidade_natal, nome_pai, nome_mae,
                 profissao_pai, nacionalidade_pai, residencia, matricula_primitiva,
-                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa, religiao
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
             const values = [
                 aluno_nome, data_nascimento, cidade_natal, nome_pai, nome_mae,
                 profissao_pai, nacionalidade_pai, residencia, matricula_primitiva,
-                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa
+                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa, religiao
             ];
 
             const execSql = await db.query(sql, values);
@@ -61,7 +61,7 @@ module.exports = {
             const {
                 aluno_nome, data_nascimento, cidade_natal, nome_pai, nome_mae = null,
                 profissao_pai, nacionalidade_pai, residencia, matricula_primitiva,
-                matricula_ano_letivo, ano_curso, sexo, observacao = null, eliminacao_data = null, eliminacao_causa = null
+                matricula_ano_letivo, ano_curso, sexo, observacao = null, eliminacao_data = null, eliminacao_causa = null, religiao = null
             } = request.body;
 
             if (!id) {
@@ -74,13 +74,13 @@ module.exports = {
             const sql = `UPDATE alunos SET
                 aluno_nome = ?, data_nascimento = ?, cidade_natal = ?, nome_pai = ?, nome_mae = ?,
                 profissao_pai = ?, nacionalidade_pai = ?, residencia = ?, matricula_primitiva = ?,
-                matricula_ano_letivo = ?, ano_curso = ?, sexo = ?, observacao = ?, eliminacao_data = ?, eliminacao_causa = ?
+                matricula_ano_letivo = ?, ano_curso = ?, sexo = ?, observacao = ?, eliminacao_data = ?, eliminacao_causa = ?, religiao = ?
                 WHERE id = ?;`;
 
             const values = [
                 aluno_nome, data_nascimento, cidade_natal, nome_pai, nome_mae,
                 profissao_pai, nacionalidade_pai, residencia, matricula_primitiva,
-                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa, id
+                matricula_ano_letivo, ano_curso, sexo, observacao, eliminacao_data, eliminacao_causa, id, religiao
             ];
 
             const [atualizaDados] = await db.query(sql, values);

@@ -23,7 +23,8 @@ export default function AdicionarAluno() {
   const [anoCurso, setAnoCurso] = useState("");
   const [eliminacaoData, setEliminacaoData] = useState("");
   const [eliminacaoCausa, setEliminacaoCausa] = useState("");
-  const [observacao, setObservacao] = useState(""); // Estado para observação
+  const [observacao, setObservacao] = useState(""); // Estado para observação;
+  const [religiao, setReligiao] = useState("")
 
   // Estados para notas
   const [matematica, setMatematica] = useState("");
@@ -55,6 +56,7 @@ export default function AdicionarAluno() {
       // Verifique se a data de eliminação é válida antes de enviar
       eliminacao_data: eliminacaoData ? eliminacaoData : null,  // Se estiver vazio, envia null
       eliminacao_causa: eliminacaoCausa,
+      religiao: religiao,
     };
     
     console.log("Dados do aluno enviados:", alunoData);
@@ -116,6 +118,7 @@ export default function AdicionarAluno() {
     setCiencias("");
     setObservacao(""); // Resetando a observação
     setSexo("");  // Limpar o campo sexo ao resetar o formulário
+    setReligiao("");
   };
 
   return (
@@ -132,6 +135,7 @@ export default function AdicionarAluno() {
       {telaAtual === "aluno" && (
         <form onSubmit={handleSalvarAluno} className={styles.form}>
           <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required className={styles.input} />
+          <input type="text" placeholder="Religiao" value={religiao} onChange={(e) => setReligiao(e.target.value)} required className={styles.input} />
           <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} required className={styles.input} placeholder="" />
           <input type="text" placeholder="Cidade Natal" value={cidadeNatal} onChange={(e) => setCidadeNatal(e.target.value)} required className={styles.input} />
           <input type="text" placeholder="Nome do Pai" value={nomePai} onChange={(e) => setNomePai(e.target.value)} required className={styles.input} />

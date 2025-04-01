@@ -43,7 +43,8 @@ export default function ListaAlunos() {
     matricula_ano_letivo: "",
     ano_curso: "",
     periodo: "",
-    observacao: ""
+    observacao: "",
+    religiao: ""
   });
     
   useEffect(() => {
@@ -254,6 +255,7 @@ export default function ListaAlunos() {
       ano_curso: aluno.ano_curso || "",
       periodo: aluno.periodo || "",
       observacao: aluno.observacao || "",
+      religiao: aluno.religiao || "",
     });
         setModalEditarAlunoAberto(true);
   };
@@ -379,6 +381,14 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
                 type="text" 
                 value={alunoEditando.aluno_nome} 
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, aluno_nome: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Religião</label>
+              <input 
+                type="text" 
+                value={alunoEditando.religiao} 
+                onChange={(e) => setAlunoEditando({ ...alunoEditando, religiao: e.target.value })}
               />
             </div>
             <div>
@@ -509,6 +519,7 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
               <tr>
                 <th>ID</th>
                 <th>Nome</th>
+                <th>Religião</th>
                 <th>Data Nascimento</th>
                 <th>Cidade Natal</th>
                 <th>Sexo</th>
@@ -533,6 +544,7 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
                   <td>{aluno.aluno_nome}
                   <button className={styles.pdfButton}onClick={() => gerarPdfAluno(aluno)}>Gerar PDF</button>
                   </td>
+                  <td>{aluno.religiao}</td>
                   <td>{new Date(aluno.data_nascimento).toLocaleDateString()}</td>
                   <td>{aluno.cidade_natal}</td>
                   <td>{aluno.sexo}</td>
