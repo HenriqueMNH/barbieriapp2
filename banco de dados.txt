@@ -1,0 +1,60 @@
+CREATE TABLE `usuarios` (
+  `usuario_id` int NOT NULL AUTO_INCREMENT,
+  `escola_id` int DEFAULT NULL,
+  `usuario_senha` varchar(255) DEFAULT NULL,
+  `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`usuario_id`),
+  KEY `escola_id` (`escola_id`),
+  CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`escola_id`) REFERENCES `escolas` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+alunos CREATE TABLE `alunos` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `aluno_nome` varchar(255) DEFAULT NULL,
+   `data_nascimento` datetime DEFAULT NULL,
+   `cidade_natal` varchar(255) NOT NULL,
+   `nome_pai` varchar(255) NOT NULL,
+   `nome_mae` varchar(255) DEFAULT NULL,
+   `profissao_pai` varchar(255) NOT NULL,
+   `nacionalidade_pai` varchar(255) NOT NULL,
+   `residencia` varchar(255) NOT NULL,
+   `matricula_primitiva` datetime DEFAULT NULL,
+   `matricula_ano_letivo` datetime DEFAULT NULL,
+   `ano_curso` int NOT NULL,
+   `observacao` text,
+   `eliminacao_data` datetime DEFAULT NULL,
+   `eliminacao_causa` varchar(255) DEFAULT NULL,
+   `sexo` varchar(100) DEFAULT NULL,
+   `religiao` varchar(255) DEFAULT NULL,
+   PRIMARY KEY (`id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=203 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+escolas CREATE TABLE `escolas` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `escola_nome` varchar(255) DEFAULT NULL,
+   `escola_endereco` varchar(255) DEFAULT NULL,
+   `escola_telefone` varchar(20) DEFAULT NULL,
+   PRIMARY KEY (`id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+notas CREATE TABLE `notas` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `aluno_id` int DEFAULT NULL,
+   `matematica` varchar(5) DEFAULT NULL,
+   `portugues` varchar(5) DEFAULT NULL,
+   `estudos_sociais` varchar(5) DEFAULT NULL,
+   `ciencias` varchar(5) DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `aluno_id` (`aluno_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+usuarios CREATE TABLE `usuarios` (
+   `usuario_id` int NOT NULL AUTO_INCREMENT,
+   `escola_id` int DEFAULT NULL,
+   `usuario_senha` varchar(255) DEFAULT NULL,
+   `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`usuario_id`),
+   KEY `escola_id` (`escola_id`),
+   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`escola_id`) REFERENCES `escolas` (`id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
