@@ -44,7 +44,7 @@ export default function ListaAlunos() {
     ano_curso: "",
     periodo: "",
     observacao: "",
-    religiao: ""
+    religiao: "",
   });
     
   useEffect(() => {
@@ -255,7 +255,7 @@ export default function ListaAlunos() {
       ano_curso: aluno.ano_curso || "",
       periodo: aluno.periodo || "",
       observacao: aluno.observacao || "",
-      religiao: aluno.religiao || ""  // Garantir que o valor seja uma string vazia, se não houver.
+      religiao: aluno.religiao || "",  // Garantir que o valor seja uma string vazia, se não houver.
     });
         setModalEditarAlunoAberto(true);
   };
