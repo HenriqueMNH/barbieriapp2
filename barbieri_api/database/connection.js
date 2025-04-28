@@ -1,10 +1,17 @@
 const mysql = require('mysql2/promise'); 
 
-const bd_usuario = 'root'; // usuário
-const bd_senha = '12345'; // senha
-const bd_servidor = '127.0.0.1'; // servidor
+// const bd_usuario = 'root'; // usuário
+// const bd_senha = '12345'; // senha
+// const bd_servidor = '127.0.0.1'; // servidor
+// const bd_porta = '3306'; // porta
+// const bd_banco = 'barbieri'; // nome do banco
+// let connection;
+
+const bd_usuario = 'user_temp'; // usuário
+const bd_senha = '1234'; // senha
+const bd_servidor = '10.67.22.216'; // servidor
 const bd_porta = '3306'; // porta
-const bd_banco = 'barbieri'; // nome do banco
+const bd_banco = 'db_temp'; // nome do banco
 let connection;
 
 
