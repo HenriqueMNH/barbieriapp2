@@ -184,7 +184,7 @@ export default function ListaAlunos() {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
       
       if (response.data.sucesso && response.data.dados.length > 0) {
-        const nota = response.data.dados[0]; // Seleciona as notas, assumindo que existe pelo menos uma
+        const nota = response.data.dados[0];
         setNotasEditando({
           matematica: nota.matematica,
           portugues: nota.portugues,
@@ -192,32 +192,46 @@ export default function ListaAlunos() {
           ciencias: nota.ciencias,
         });
       } else {
+        // Inicializa com campos vazios para permitir criação de novas notas
         setNotasEditando({
           matematica: "",
           portugues: "",
           estudos_sociais: "",
           ciencias: "",
         });
-        alert("Nenhuma nota encontrada para este aluno.");
       }
-
+      
       setAlunoSelecionado(aluno);
       setModalAberto(true);
       setModalVerNotasAberto(false);
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        alert("Nenhuma nota encontrada para este aluno.");
+        // Nenhuma nota encontrada, mas não é um erro — apenas inicializa os campos
+        console.warn("Nenhuma nota existente para este aluno. Inicializando campos vazios.");
+        setNotasEditando({
+          matematica: "",
+          portugues: "",
+          estudos_sociais: "",
+          ciencias: "",
+        });
       } else {
         console.error("Erro ao buscar notas:", error);
         alert("Erro ao carregar notas. Tente novamente.");
+        // Mesmo em caso de erro, inicializa campos vazios para não travar a interface
+        setNotasEditando({
+          matematica: "",
+          portugues: "",
+          estudos_sociais: "",
+          ciencias: "",
+        });
       }
-      setNotasEditando({
-        matematica: "",
-        portugues: "",
-        estudos_sociais: "",
-        ciencias: "",
-      });
+    
+      // Garante que o modal ainda será aberto mesmo se algo falhar
+      setAlunoSelecionado(aluno);
+      setModalAberto(true);
+      setModalVerNotasAberto(false);
     }
+    
   };
 
   const salvarNotas = async () => { //E aqui as notas seram editadas com sucesso 
