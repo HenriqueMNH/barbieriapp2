@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, React, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import styles from "./page.module.css";
@@ -46,6 +46,13 @@ export default function ListaAlunos() {
     observacao: "",
     religiao: "",
   });
+
+  const [alunoExpandidoId, setAlunoExpandidoId] = useState(null);
+
+const toggleExpandir = (id) => {
+  setAlunoExpandidoId(prev => (prev === id ? null : id));
+};
+
     
   useEffect(() => {
     const fetchAlunos = async () => {
@@ -552,38 +559,59 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
               </tr>
             </thead>
             <tbody>
-              {alunosFiltrados.map((aluno) => ( //Já aqui ele está jogando as informações do aluno em questão 
-                <tr key={aluno.id}>
-                  <td>{aluno.id}</td>
-                  <td>{aluno.aluno_nome}
-                  <button className={styles.pdfButton}onClick={() => gerarPdfAluno(aluno)}>Gerar PDF</button>
-                  </td>
-                  <td>{aluno.religiao}</td>
-                  <td>{new Date(aluno.data_nascimento).toLocaleDateString()}</td>
-                  <td>{aluno.cidade_natal}</td>
-                  <td>{aluno.sexo}</td>
-                  <td>{aluno.nome_pai}</td>
-                  <td>{aluno.nome_mae}</td>
-                  <td>{aluno.profissao_pai}</td>
-                  <td>{aluno.nacionalidade_pai}</td>
-                  <td>{aluno.residencia}</td>
-                  <td>{new Date (aluno.matricula_primitiva).toLocaleDateString()}</td>
-                  <td>{new Date(aluno.matricula_ano_letivo).toLocaleDateString()}</td>
-                  <td>{aluno.ano_curso}</td>
-                  <td>{aluno.periodo}</td>
-                  <td>{aluno.observacao}</td>
-                  <td> 
-                    <button onClick={() => verNotas(aluno)}>Ver Notas</button> 
-                  </td>
-                  <td>
-                    <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
-                    <button onClick={() => editarAluno(aluno)}>Editar Aluno</button>
-                    <button onClick={() => deletarAluno(aluno)}>Excluir Aluno</button>
+  {alunosFiltrados.map((aluno) => (
+    <Fragment key={aluno.id}>
+      <tr>
+        <td>{aluno.id}</td>
+        <td>
+          {aluno.aluno_nome}
+          <button className={styles.pdfButton} onClick={() => gerarPdfAluno(aluno)}>Gerar PDF</button>
+          <button onClick={() => toggleExpandir(aluno.id)}>
+            {alunoExpandidoId === aluno.id ? '▲' : '▼'}
+          </button>
+        </td>
+        <td>{aluno.religiao}</td>
+        <td>{new Date(aluno.data_nascimento).toLocaleDateString()}</td>
+        <td>{aluno.cidade_natal}</td>
+        <td>{aluno.sexo}</td>
+        <td>{aluno.nome_pai}</td>
+        <td>{aluno.nome_mae}</td>
+        <td>{aluno.profissao_pai}</td>
+        <td>{aluno.nacionalidade_pai}</td>
+        <td>{aluno.residencia}</td>
+        <td>{new Date(aluno.matricula_primitiva).toLocaleDateString()}</td>
+        <td>{new Date(aluno.matricula_ano_letivo).toLocaleDateString()}</td>
+        <td>{aluno.ano_curso}</td>
+        <td>{aluno.periodo}</td>
+        <td>{aluno.observacao}</td>
+        <td>
+          <button onClick={() => verNotas(aluno)}>Ver Notas</button>
+        </td>
+        <td>
+          <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
+          <button onClick={() => editarAluno(aluno)}>Editar Aluno</button>
+          <button onClick={() => deletarAluno(aluno)}>Excluir Aluno</button>
+        </td>
+      </tr>
 
-                  </td>
-                </tr>
-              ))}
-            </tbody> 
+      {alunoExpandidoId === aluno.id && (
+        <tr>
+          <td colSpan={18}>
+            <div style={{ background: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
+              <strong>Informações Adicionais:</strong><br />
+              CPF: {aluno.cpf}<br />
+              RG: {aluno.rg}<br />
+              Nacionalidade: {aluno.nacionalidade}<br />
+              Telefone: {aluno.telefone}<br />
+              Email: {aluno.email}<br />
+              {/* Aqui você pode inserir outras seções como notas detalhadas por ano */}
+            </div>
+          </td>
+        </tr>
+      )}
+    </Fragment>
+  ))}
+</tbody>
           </table>
         ) : (
           <p>Nenhum aluno encontrado com os filtros aplicados.</p>
