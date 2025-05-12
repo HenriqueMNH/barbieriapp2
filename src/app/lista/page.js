@@ -10,7 +10,7 @@ export default function ListaAlunos() {
 
   const [alunos, setAlunos] = useState([]);
   const [filtros, setFiltros] = useState({ // Aqui é onde está os dados do filtro
-    nome: "", 
+    nome: "",
     ano: "",
     anoEstudo: "",
     serie: "",
@@ -21,7 +21,7 @@ export default function ListaAlunos() {
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [anoCurso, setAnoCurso] = useState('');  // Armazenando o ano selecionado
   const [modalAberto, setModalAberto] = useState(false);
-  const [modalVerNotasAberto, setModalVerNotasAberto] = useState(false); 
+  const [modalVerNotasAberto, setModalVerNotasAberto] = useState(false);
   const [notasEditando, setNotasEditando] = useState({ // Aqui é onde está os dados das notas
     matematica: "",
     portugues: "",
@@ -32,7 +32,7 @@ export default function ListaAlunos() {
   const [alunoEditando, setAlunoEditando] = useState({ // Aqui os dados do aluno
     aluno_nome: "",
     data_nascimento: "",
-    cidade_natal: "",  
+    cidade_natal: "",
     sexo: "",
     nome_pai: "",
     nome_mae: "",
@@ -49,11 +49,11 @@ export default function ListaAlunos() {
 
   const [alunoExpandidoId, setAlunoExpandidoId] = useState(null);
 
-const toggleExpandir = (id) => {
-  setAlunoExpandidoId(prev => (prev === id ? null : id));
-};
+  const toggleExpandir = (id) => {
+    setAlunoExpandidoId(prev => (prev === id ? null : id));
+  };
 
-    
+
   useEffect(() => {
     const fetchAlunos = async () => {
       try {
@@ -73,7 +73,7 @@ const toggleExpandir = (id) => {
 
   const resetarFiltros = () => {
     setFiltros({
-      nome: "", 
+      nome: "",
       ano: "",
       anoEstudo: "",
       serie: "",
@@ -87,13 +87,13 @@ const toggleExpandir = (id) => {
       alert("Aluno não selecionado corretamente.");
       return;
     }
-  
+
     try {
       // Envia uma solicitação para o backend para gerar o PDF
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${aluno.id}/pdf`, {
         responseType: "blob", // Para receber o arquivo PDF como um blob
       });
-  
+
       // Cria um link temporário para baixar o arquivo PDF
       const blob = new Blob([response.data], { type: "application/pdf" });
       const link = document.createElement("a");
@@ -106,7 +106,7 @@ const toggleExpandir = (id) => {
       alert("Erro ao gerar o PDF. Tente novamente.");
     }
   };
-  
+
 
 
   const filtrosAtivos = Object.values(filtros).some((valor) => valor !== "");
@@ -118,7 +118,7 @@ const toggleExpandir = (id) => {
     const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
     const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
     const filtroSexo = filtros.sexo ? aluno.sexo === filtros.sexo : true;
-    return filtroNome && filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo ;
+    return filtroNome && filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo;
   });
 
   const deletarAluno = async (aluno) => { //Aqui ele realiza a exclusão de alunos 
@@ -126,19 +126,19 @@ const toggleExpandir = (id) => {
       alert("ID do aluno inválido.");
       return;
     }
-  
+
     if (!confirm("Tem certeza que deseja excluir este aluno?")) {
       return;
     }
-  
+
     try {
       console.log("ID enviado para deletar:", aluno.id);
-  
+
       // Deletando o aluno baseado no id
       await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${aluno.id}`);
-  
+
       alert("Aluno excluído com sucesso!");
-  
+
       // Buscar novamente a lista do backend para garantir a atualização correta
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos`);
       setAlunos(response.data.dados);
@@ -147,7 +147,7 @@ const toggleExpandir = (id) => {
       alert("Erro ao excluir aluno. Verifique a conexão ou tente novamente.");
     }
   };
-      
+
 
   const verNotas = async (aluno) => { // Aqui ele vai poder ver as notas 
     try {
@@ -157,7 +157,7 @@ const toggleExpandir = (id) => {
       }
 
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
-      
+
       if (response.data.sucesso && response.data.dados.length > 0) {
         setNotas(response.data.dados);
       } else {
@@ -179,7 +179,7 @@ const toggleExpandir = (id) => {
     const novaData = new Date(data);
     return novaData.toISOString().slice(0, 19).replace("T", " "); // 'YYYY-MM-DD HH:MM:SS'
   };
-  
+
 
   const buscarNotas = async (aluno) => { //Aqui a gente pega as notas para realizar uma edição caso queira 
     try {
@@ -189,7 +189,7 @@ const toggleExpandir = (id) => {
       }
 
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
-      
+
       if (response.data.sucesso && response.data.dados.length > 0) {
         const nota = response.data.dados[0];
         setNotasEditando({
@@ -207,7 +207,7 @@ const toggleExpandir = (id) => {
           ciencias: "",
         });
       }
-      
+
       setAlunoSelecionado(aluno);
       setModalAberto(true);
       setModalVerNotasAberto(false);
@@ -232,13 +232,13 @@ const toggleExpandir = (id) => {
           ciencias: "",
         });
       }
-    
+
       // Garante que o modal ainda será aberto mesmo se algo falhar
       setAlunoSelecionado(aluno);
       setModalAberto(true);
       setModalVerNotasAberto(false);
     }
-    
+
   };
 
   const salvarNotas = async () => { //E aqui as notas seram editadas com sucesso 
@@ -252,7 +252,7 @@ const toggleExpandir = (id) => {
       alert("Notas editadas com sucesso!");
 
       setModalAberto(false);
-      buscarNotas(alunoSelecionado); 
+      buscarNotas(alunoSelecionado);
     } catch (error) {
       console.error("Erro ao salvar notas:", error);
       alert("Erro ao salvar as notas.");
@@ -278,7 +278,7 @@ const toggleExpandir = (id) => {
       observacao: aluno.observacao || "",
       religiao: aluno.religiao || "",  // Garantir que o valor seja uma string vazia, se não houver.
     });
-        setModalEditarAlunoAberto(true);
+    setModalEditarAlunoAberto(true);
   };
 
   const salvarAlunoEditado = async () => {
@@ -288,25 +288,25 @@ const toggleExpandir = (id) => {
         alert("O campo 'Cidade Natal' é obrigatório!");
         return;
       }
-  
+
       // Formatar a data de nascimento (se necessário)
       const dataNascimentoFormatada = alunoEditando.data_nascimento.split("T")[0];
-  
+
       // Atualizando o objeto do aluno com a cidade natal
-const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de se ver, então. Aqui ele está usando ela com todos os itens que usam data
-  ...alunoEditando, 
-  cidade_natal: alunoEditando.cidade_natal,
-  data_nascimento: formatarData(alunoEditando.data_nascimento),
-  matricula_primitiva: formatarData(alunoEditando.matricula_primitiva),
-  matricula_ano_letivo: formatarData(alunoEditando.matricula_ano_letivo),
-};
-  
+      const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de se ver, então. Aqui ele está usando ela com todos os itens que usam data
+        ...alunoEditando,
+        cidade_natal: alunoEditando.cidade_natal,
+        data_nascimento: formatarData(alunoEditando.data_nascimento),
+        matricula_primitiva: formatarData(alunoEditando.matricula_primitiva),
+        matricula_ano_letivo: formatarData(alunoEditando.matricula_ano_letivo),
+      };
+
       // Enviando os dados atualizados para o backend
       await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${alunoSelecionado.id}`, alunoAtualizado);
-  
+
       alert("Informações do aluno editadas com sucesso!");
       setModalEditarAlunoAberto(false);
-  
+
       // Recarregar a lista de alunos
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos`);
       setAlunos(response.data.dados);
@@ -320,9 +320,9 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
       }
     }
   };
-      
-  return ( 
-    
+
+  return (
+
     <div className={styles.listaPage}>
       <button onClick={() => router.back()} className={styles.voltarButton}>⬅ Voltar</button>
       <h1>Lista de Alunos</h1>
@@ -333,33 +333,33 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
             <h2>Editar Notas de {alunoSelecionado?.aluno_nome || "Aluno"}</h2>
             <div>
               <label>Matemática</label>
-              <input 
-                type="text" 
-                value={notasEditando.matematica || ""} 
+              <input
+                type="text"
+                value={notasEditando.matematica || ""}
                 onChange={(e) => setNotasEditando({ ...notasEditando, matematica: e.target.value })}
               />
             </div>
             <div>
               <label>Português</label>
-              <input 
-                type="text" 
-                value={notasEditando.portugues || ""} 
+              <input
+                type="text"
+                value={notasEditando.portugues || ""}
                 onChange={(e) => setNotasEditando({ ...notasEditando, portugues: e.target.value })}
               />
             </div>
             <div>
               <label>Estudos Sociais</label>
-              <input 
-                type="text" 
-                value={notasEditando.estudos_sociais || ""} 
+              <input
+                type="text"
+                value={notasEditando.estudos_sociais || ""}
                 onChange={(e) => setNotasEditando({ ...notasEditando, estudos_sociais: e.target.value })}
               />
             </div>
             <div>
               <label>Ciências</label>
-              <input 
-                type="text" 
-                value={notasEditando.ciencias || ""} 
+              <input
+                type="text"
+                value={notasEditando.ciencias || ""}
                 onChange={(e) => setNotasEditando({ ...notasEditando, ciencias: e.target.value })}
               />
             </div>
@@ -398,138 +398,138 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
             <h2>Editar Informações do Aluno</h2>
             <div>
               <label>Nome</label>
-              <input 
-                type="text" 
-                value={alunoEditando.aluno_nome} 
+              <input
+                type="text"
+                value={alunoEditando.aluno_nome}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, aluno_nome: e.target.value })}
               />
             </div>
             <div>
-            <label>Religião</label>
-<input 
-  type="text" 
-  value={alunoEditando.religiao} 
-  onChange={(e) => setAlunoEditando({ ...alunoEditando, religiao: e.target.value })}
-/>
+              <label>Religião</label>
+              <input
+                type="text"
+                value={alunoEditando.religiao}
+                onChange={(e) => setAlunoEditando({ ...alunoEditando, religiao: e.target.value })}
+              />
             </div>
             <div>
               <label>Data de Nascimento</label>
-              <input 
-                type="date" 
-                value={alunoEditando.data_nascimento} 
+              <input
+                type="date"
+                value={alunoEditando.data_nascimento}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, data_nascimento: e.target.value })}
               />
             </div>
             <div>
-  <label>Cidade Natal</label>
-  <input 
-    type="text" 
-    value={alunoEditando.cidade_natal}  // Sempre um valor controlado
-    onChange={(e) => setAlunoEditando({ ...alunoEditando, cidade_natal: e.target.value })}
-  />
-</div>
+              <label>Cidade Natal</label>
+              <input
+                type="text"
+                value={alunoEditando.cidade_natal}  // Sempre um valor controlado
+                onChange={(e) => setAlunoEditando({ ...alunoEditando, cidade_natal: e.target.value })}
+              />
+            </div>
             <div>
-            <label>Sexo</label>
-              <input 
-                type="text" 
-                value={alunoEditando.sexo} 
+              <label>Sexo</label>
+              <input
+                type="text"
+                value={alunoEditando.sexo}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, sexo: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Nome do Pai</label>
-              <input 
-                type="text" 
-                value={alunoEditando.nome_pai} 
+              <input
+                type="text"
+                value={alunoEditando.nome_pai}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, nome_pai: e.target.value })}
               />
-              </div> 
-              <div>
+            </div>
+            <div>
               <label>Nome da Mãe</label>
-              <input 
-                type="text" 
-                value={alunoEditando.nome_mae} 
+              <input
+                type="text"
+                value={alunoEditando.nome_mae}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, nome_mae: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Profissão do Pai</label>
-              <input 
-                type="text" 
-                value={alunoEditando.profissao_pai} 
+              <input
+                type="text"
+                value={alunoEditando.profissao_pai}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, profissao_pai: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Nacionalidade Pai</label>
-              <input 
-                type="text" 
-                value={alunoEditando.nacionalidade_pai} 
+              <input
+                type="text"
+                value={alunoEditando.nacionalidade_pai}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, nacionalidade_pai: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Residência</label>
-              <input 
-                type="text" 
-                value={alunoEditando.residencia} 
+              <input
+                type="text"
+                value={alunoEditando.residencia}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, residencia: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Matrícula Primitiva</label>
-              <input 
-                type="date" 
-                value={alunoEditando.matricula_primitiva} 
+              <input
+                type="date"
+                value={alunoEditando.matricula_primitiva}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, matricula_primitiva: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Matrícula Ano Letivo</label>
-              <input 
-                type="date" 
-                value={alunoEditando.matricula_ano_letivo} 
+              <input
+                type="date"
+                value={alunoEditando.matricula_ano_letivo}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, matricula_ano_letivo: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Ano Curso</label>
-              <input 
-                type="text" 
-                value={alunoEditando.ano_curso} 
+              <input
+                type="text"
+                value={alunoEditando.ano_curso}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, ano_curso: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Período</label>
-              <input 
-                type="text" 
-                value={alunoEditando.periodo} 
+              <input
+                type="text"
+                value={alunoEditando.periodo}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, periodo: e.target.value })}
               />
-              </div>
-              <div>
+            </div>
+            <div>
               <label>Observações</label>
-              <input 
-                type="text" 
-                value={alunoEditando.observacao} 
+              <input
+                type="text"
+                value={alunoEditando.observacao}
                 onChange={(e) => setAlunoEditando({ ...alunoEditando, observacao: e.target.value })}
               />
-              </div>
+            </div>
             <button onClick={salvarAlunoEditado}>Salvar</button>
             <button onClick={() => setModalEditarAlunoAberto(false)}>Fechar</button>
           </div>
         </div>
       )}
 
-      <div className={styles.filtros}> 
-        <input type="text" name="nome" placeholder="Nome" value={filtros.nome} onChange={handleFiltroChange}/>
+      <div className={styles.filtros}>
+        <input type="text" name="nome" placeholder="Nome" value={filtros.nome} onChange={handleFiltroChange} />
         <input type="text" name="ano" placeholder="Ano" value={filtros.ano} onChange={handleFiltroChange} />
         <input type="text" name="anoEstudo" placeholder="Ano de Estudo" value={filtros.anoEstudo} onChange={handleFiltroChange} />
         <input type="text" name="serie" placeholder="Série" value={filtros.serie} onChange={handleFiltroChange} />
         <input type="text" name="periodo" placeholder="Período" value={filtros.periodo} onChange={handleFiltroChange} />
         <input type="text" name="sexo" placeholder="Sexo" value={filtros.sexo} onChange={handleFiltroChange} />
-        <button onClick={resetarFiltros}>Resetar Filtros</button> 
+        <button onClick={resetarFiltros}>Resetar Filtros</button>
       </div>
 
 
@@ -538,16 +538,11 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Nome</th>
-                <th>Religião</th>
                 <th>Data Nascimento</th>
                 <th>Cidade Natal</th>
                 <th>Sexo</th>
-                <th>Nome Pai</th>
-                <th>Nome Mãe</th>
-                <th>Profissão Pai</th>
-                <th>Nacionalidade Pai</th>
+                <th>Filiação</th>
                 <th>Residência</th>
                 <th>Matrícula Primitiva</th>
                 <th>Matrícula Ano Letivo</th>
@@ -559,59 +554,65 @@ const alunoAtualizado = { //Lembra do formatarData para deixar a data melhor de 
               </tr>
             </thead>
             <tbody>
-  {alunosFiltrados.map((aluno) => (
-    <Fragment key={aluno.id}>
-      <tr>
-        <td>{aluno.id}</td>
-        <td>
-          {aluno.aluno_nome}
-          <button className={styles.pdfButton} onClick={() => gerarPdfAluno(aluno)}>Gerar PDF</button>
-          <button onClick={() => toggleExpandir(aluno.id)}>
-            {alunoExpandidoId === aluno.id ? '▲' : '▼'}
-          </button>
-        </td>
-        <td>{aluno.religiao}</td>
-        <td>{new Date(aluno.data_nascimento).toLocaleDateString()}</td>
-        <td>{aluno.cidade_natal}</td>
-        <td>{aluno.sexo}</td>
-        <td>{aluno.nome_pai}</td>
-        <td>{aluno.nome_mae}</td>
-        <td>{aluno.profissao_pai}</td>
-        <td>{aluno.nacionalidade_pai}</td>
-        <td>{aluno.residencia}</td>
-        <td>{new Date(aluno.matricula_primitiva).toLocaleDateString()}</td>
-        <td>{new Date(aluno.matricula_ano_letivo).toLocaleDateString()}</td>
-        <td>{aluno.ano_curso}</td>
-        <td>{aluno.periodo}</td>
-        <td>{aluno.observacao}</td>
-        <td>
-          <button onClick={() => verNotas(aluno)}>Ver Notas</button>
-        </td>
-        <td>
-          <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
-          <button onClick={() => editarAluno(aluno)}>Editar Aluno</button>
-          <button onClick={() => deletarAluno(aluno)}>Excluir Aluno</button>
-        </td>
-      </tr>
+              {alunosFiltrados.map((aluno) => (
+                <Fragment key={aluno.id}>
+                  <tr>
+                    <td>
+                      {aluno.aluno_nome}
+                      <button className={styles.pdfButton} onClick={() => gerarPdfAluno(aluno)}>Gerar PDF</button>
+                      <button onClick={() => toggleExpandir(aluno.id)}>
+                        {alunoExpandidoId === aluno.id ? '▲' : '▼'}
+                      </button>
+                    </td>
+                    <td>{new Date(aluno.data_nascimento).toLocaleDateString()}</td>
+                    <td>{aluno.cidade_natal}</td>
+                    <td>{aluno.sexo}</td>
+                    <td>
+                      {/* Concatenando o nome do pai e da mãe com duas quebras de linha */}
+                      {aluno.nome_pai && aluno.nome_mae ? (
+                        <>
+                          {aluno.nome_pai}<br />
+                          <br /> {/* Adicionando uma linha em branco entre os nomes */}
+                          {aluno.nome_mae}
+                        </>
+                      ) : (
+                        `${aluno.nome_pai ? aluno.nome_pai : ''} ${aluno.nome_mae ? aluno.nome_mae : ''}`
+                      )}
+                    </td>
+                    <td>{aluno.residencia}</td>
+                    <td>{new Date(aluno.matricula_primitiva).toLocaleDateString()}</td>
+                    <td>{new Date(aluno.matricula_ano_letivo).toLocaleDateString()}</td>
+                    <td>{aluno.ano_curso}</td>
+                    <td>{aluno.periodo}</td>
+                    <td>{aluno.observacao}</td>
+                    <td>
+                      <button onClick={() => verNotas(aluno)}>Ver Notas</button>
+                    </td>
+                    <td>
+                      <button onClick={() => buscarNotas(aluno)}>Editar Notas</button>
+                      <button onClick={() => editarAluno(aluno)}>Editar Aluno</button>
+                      <button onClick={() => deletarAluno(aluno)}>Excluir Aluno</button>
+                    </td>
+                  </tr>
 
-      {alunoExpandidoId === aluno.id && (
-        <tr>
-          <td colSpan={18}>
-            <div style={{ background: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
-              <strong>Informações Adicionais:</strong><br />
-              CPF: {aluno.cpf}<br />
-              RG: {aluno.rg}<br />
-              Nacionalidade: {aluno.nacionalidade}<br />
-              Telefone: {aluno.telefone}<br />
-              Email: {aluno.email}<br />
-              {/* Aqui você pode inserir outras seções como notas detalhadas por ano */}
-            </div>
-          </td>
-        </tr>
-      )}
-    </Fragment>
-  ))}
-</tbody>
+                  {alunoExpandidoId === aluno.id && (
+                    <tr>
+                      <td colSpan={18}>
+                        <div style={{ background: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
+                          <strong>Informações Adicionais:</strong><br />
+                          Religião: {aluno.religiao}<br />
+                          Profissão do Pai: {aluno.profissao_pai}<br />
+                          Nacionalidade do Pai: {aluno.nacionalidade_pai}<br />
+                          Telefone: {aluno.telefone}<br />
+                          Email: {aluno.email}<br />
+                          {/* Aqui você pode inserir outras seções como notas detalhadas por ano */}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              ))}
+            </tbody>
           </table>
         ) : (
           <p>Nenhum aluno encontrado com os filtros aplicados.</p>
