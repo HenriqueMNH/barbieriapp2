@@ -137,9 +137,9 @@ export default function AdicionarAluno() {
           <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required className={styles.input} />
           <input type="text" placeholder="Religiao" value={religiao} onChange={(e) => setReligiao(e.target.value)} className={styles.input} />
           <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} required className={styles.input} placeholder="" />
-          <input type="text" placeholder="Cidade Natal" value={cidadeNatal} onChange={(e) => setCidadeNatal(e.target.value)} required className={styles.input} />
+          <input type="text" placeholder="Naturalidade" value={cidadeNatal} onChange={(e) => setCidadeNatal(e.target.value)} required className={styles.input} />
           <input type="text" placeholder="Nome do Pai" value={nomePai} onChange={(e) => setNomePai(e.target.value)} required className={styles.input} />
-          <input type="text" placeholder="Nome da Mãe (Opcional)" value={nomeMae} onChange={(e) => setNomeMae(e.target.value)} className={styles.input} />
+          <input type="text" placeholder="Nome da Mãe" value={nomeMae} onChange={(e) => setNomeMae(e.target.value)} className={styles.input} />
           <input type="text" placeholder="Profissão do Pai" value={profissaoPai} onChange={(e) => setProfissaoPai(e.target.value)} className={styles.input} />
           <input type="text" placeholder="Nacionalidade do Pai" value={nacionalidadePai} onChange={(e) => setNacionalidadePai(e.target.value)} required className={styles.input} />
           <input type="text" placeholder="Residência" value={residencia} onChange={(e) => setResidencia(e.target.value)} required className={styles.input} />

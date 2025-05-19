@@ -540,7 +540,7 @@ export default function ListaAlunos() {
               <tr>
                 <th>Nome</th>
                 <th>Data Nascimento</th>
-                <th>Cidade Natal</th>
+                <th>Naturalidade</th>
                 <th>Sexo</th>
                 <th>Filiação</th>
                 <th>Residência</th>
