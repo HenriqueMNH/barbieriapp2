@@ -107,6 +107,36 @@ module.exports = {
         }
     },
 
+async buscarAlunos(request, response) {
+  try {
+    const { busca } = request.query;
+
+    if (!busca || busca.trim() === "") {
+      return response.status(400).json({
+        sucesso: false,
+        mensagem: "Parâmetro de busca obrigatório.",
+        dados: []
+      });
+    }
+
+    const sql = `SELECT * FROM alunos WHERE aluno_nome LIKE ? LIMIT 5;`;
+    const [rows] = await db.query(sql, [`%${busca}%`]);
+
+    return response.status(200).json({
+      sucesso: true,
+      mensagem: "Resultados encontrados.",
+      dados: rows
+    });
+  } catch (error) {
+    return response.status(500).json({
+      sucesso: false,
+      mensagem: "Erro ao buscar alunos.",
+      dados: error.message
+    });
+  }
+},
+
+
     async apagarAlunos(request, response) {
         try {
             const { id } = request.params;

@@ -33,6 +33,7 @@ router.get('/alunos', AlunosController.listarAlunos);
 router.post('/alunos', AlunosController.cadastrarAlunos);
 router.patch('/alunos/:id', AlunosController.editarAlunos);
 router.delete('/alunos/:id', AlunosController.apagarAlunos);
+router.get("/buscar", AlunosController.buscarAlunos);
 
 
 

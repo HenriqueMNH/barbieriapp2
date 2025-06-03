@@ -7,6 +7,7 @@
   
   .form {
     display: flex;
+  position: relative;
     flex-direction: column;
     gap: 10px;
     max-width: 300px;
@@ -33,4 +34,29 @@
   .button:hover {
     background-color: #005bb5;
   }
+
+.sugestoesLista {
+  position: absolute;
+  top: 100%; /* começa exatamente abaixo do input */
+  margin-top: 4px; /* ou mais, se quiser mais espaço */
+  left: 0;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.8); /* ou 0 para total transparência */
+  backdrop-filter: blur(4px); /* opcional */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  list-style: none;
+  padding: 0;
+}
+
+
+.sugestaoItem {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.sugestaoItem:hover {
+  background-color: #f0f0f0;
+}
   

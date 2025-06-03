@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";  // Importa o axios para as requisições API
 import styles from "./page.module.css";
+import debounce from "lodash/debounce";
 
 export default function AdicionarAluno() {
   const [telaAtual, setTelaAtual] = useState("menu");
@@ -11,6 +12,7 @@ export default function AdicionarAluno() {
   // Estados para informações do aluno
   const [alunoId, setAlunoId] = useState(null);
   const [nome, setNome] = useState("");
+  const [sugestoes, setSugestoes] = useState([]);
   const [dataNascimento, setDataNascimento] = useState("");
   const [cidadeNatal, setCidadeNatal] = useState("");
   const [nomePai, setNomePai] = useState("");
@@ -121,6 +123,30 @@ export default function AdicionarAluno() {
     setReligiao("");
   };
 
+const buscarSugestoes = debounce(async (texto) => {
+  if (!texto || texto.length < 2) {
+    setSugestoes([]);
+    return;
+  }
+
+  try {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos?busca=${texto}`);
+    const nomesFiltrados = res.data.dados.filter(aluno =>
+      aluno.aluno_nome.toLowerCase().includes(texto.toLowerCase())
+    );
+    setSugestoes(nomesFiltrados);
+  } catch (err) {
+    console.error("Erro ao buscar sugestões:", err);
+  }
+}, 300);
+
+  // Sempre que o nome mudar, busca sugestões
+  useEffect(() => {
+    buscarSugestoes(nome);
+  }, [nome]);
+
+
+
   return (
     <div className={styles.adicionarPage}>
       {telaAtual === "menu" && (
@@ -134,7 +160,38 @@ export default function AdicionarAluno() {
 
       {telaAtual === "aluno" && (
         <form onSubmit={handleSalvarAluno} className={styles.form}>
-          <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required className={styles.input} />
+{/* Campo nome */}
+<input
+  type="text"
+  placeholder="Nome"
+  value={nome}
+  onChange={(e) => setNome(e.target.value)}
+  required
+  className={styles.input}
+/>
+
+{/* Lista suspensa de sugestões */}
+{sugestoes.length > 0 && (
+  <ul className={styles.sugestoesLista}>
+    {sugestoes.map((aluno) => (
+      <li
+        key={aluno.id}
+        onClick={() => {
+          setNome(aluno.aluno_nome);
+          setSugestoes([]);
+          setAlunoId(aluno.id);
+          // preencha outros campos do aluno se quiser
+        }}
+        className={styles.sugestaoItem}
+      >
+        {aluno.aluno_nome}
+      </li>
+    ))}
+    <li>
+      <button onClick={() => setSugestoes([])}>Cancelar</button>
+    </li>
+  </ul>
+)}
           <input type="text" placeholder="Religiao" value={religiao} onChange={(e) => setReligiao(e.target.value)} className={styles.input} />
           <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} required className={styles.input} placeholder="" />
           <input type="text" placeholder="Naturalidade" value={cidadeNatal} onChange={(e) => setCidadeNatal(e.target.value)} required className={styles.input} />
