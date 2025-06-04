@@ -39,7 +39,7 @@ export default function AdicionarAluno() {
 
   const handleSalvarAluno = async (e) => {
     e.preventDefault();
-  
+
     // Dados do aluno
     const alunoData = {
       aluno_nome: nome,
@@ -60,16 +60,16 @@ export default function AdicionarAluno() {
       eliminacao_causa: eliminacaoCausa,
       religiao: religiao,
     };
-    
+
     console.log("Dados do aluno enviados:", alunoData);
-    
+
     try {
       const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
       console.log("Resposta do servidor:", alunoResponse);
       setAlunoId(alunoResponse.data.dados);  // Armazene o alunoId
-            // Após salvar o aluno, mostramos o formulário de notas
+      // Após salvar o aluno, mostramos o formulário de notas
       setFormularioNotas(true);
-      
+
       alert("Aluno cadastrado com sucesso! Agora, insira as notas.");
 
     } catch (error) {
@@ -88,7 +88,7 @@ export default function AdicionarAluno() {
       estudos_sociais: estudosSociais,
       ciencias,
     };
-        
+
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, notasData);
       alert("Notas cadastradas com sucesso!");
@@ -123,22 +123,22 @@ export default function AdicionarAluno() {
     setReligiao("");
   };
 
-const buscarSugestoes = debounce(async (texto) => {
-  if (!texto || texto.length < 2) {
-    setSugestoes([]);
-    return;
-  }
+  const buscarSugestoes = debounce(async (texto) => {
+    if (!texto || texto.length < 2) {
+      setSugestoes([]);
+      return;
+    }
 
-  try {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos?busca=${texto}`);
-    const nomesFiltrados = res.data.dados.filter(aluno =>
-      aluno.aluno_nome.toLowerCase().includes(texto.toLowerCase())
-    );
-    setSugestoes(nomesFiltrados);
-  } catch (err) {
-    console.error("Erro ao buscar sugestões:", err);
-  }
-}, 300);
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos?busca=${texto}`);
+      const nomesFiltrados = res.data.dados.filter(aluno =>
+        aluno.aluno_nome.toLowerCase().includes(texto.toLowerCase())
+      );
+      setSugestoes(nomesFiltrados);
+    } catch (err) {
+      console.error("Erro ao buscar sugestões:", err);
+    }
+  }, 300);
 
   // Sempre que o nome mudar, busca sugestões
   useEffect(() => {
@@ -160,48 +160,79 @@ const buscarSugestoes = debounce(async (texto) => {
 
       {telaAtual === "aluno" && (
         <form onSubmit={handleSalvarAluno} className={styles.form}>
-{/* Campo nome */}
-<input
-  type="text"
-  placeholder="Nome"
-  value={nome}
-  onChange={(e) => setNome(e.target.value)}
-  required
-  className={styles.input}
-/>
+          {/* Campo nome */}
+          <input
+            type="text"
+            placeholder="Nome"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            required
+            className={styles.input}
+          />
 
-{/* Lista suspensa de sugestões */}
-{sugestoes.length > 0 && (
-  <ul className={styles.sugestoesLista}>
-    {sugestoes.map((aluno) => (
-      <li
-        key={aluno.id}
-        onClick={() => {
-          setNome(aluno.aluno_nome);
-          setSugestoes([]);
-          setAlunoId(aluno.id);
-          // preencha outros campos do aluno se quiser
-        }}
-        className={styles.sugestaoItem}
-      >
-        {aluno.aluno_nome}
-      </li>
-    ))}
-    <li>
-      <button onClick={() => setSugestoes([])}>Cancelar</button>
-    </li>
-  </ul>
-)}
+          {/* Lista suspensa de sugestões */}
+          {sugestoes.length > 0 && (
+            <ul className={styles.sugestoesLista}>
+              {sugestoes.map((aluno) => (
+                <li
+                  key={aluno.id}
+                  onClick={() => {
+                    setNome(aluno.aluno_nome);
+                    setSugestoes([]);
+                    setAlunoId(aluno.id);
+                    // preencha outros campos do aluno se quiser
+                  }}
+                  className={styles.sugestaoItem}
+                >
+                  {aluno.aluno_nome}
+                </li>
+              ))}
+              <li>
+                <button onClick={() => setSugestoes([])}>Cancelar</button>
+              </li>
+            </ul>
+          )}
           <input type="text" placeholder="Religiao" value={religiao} onChange={(e) => setReligiao(e.target.value)} className={styles.input} />
-          <input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} required className={styles.input} placeholder="" />
+          <input
+            type={dataNascimento ? "date" : "text"}
+            value={dataNascimento || ""}
+            onFocus={(e) => e.target.type = "date"}
+            onBlur={(e) => {
+              if (!dataNascimento) e.target.type = "text";
+            }}
+            onChange={(e) => setDataNascimento(e.target.value)}
+            className={styles.input}
+            placeholder="Data de Nascimento"
+          />
           <input type="text" placeholder="Naturalidade" value={cidadeNatal} onChange={(e) => setCidadeNatal(e.target.value)} required className={styles.input} />
           <input type="text" placeholder="Nome do Pai" value={nomePai} onChange={(e) => setNomePai(e.target.value)} required className={styles.input} />
           <input type="text" placeholder="Nome da Mãe" value={nomeMae} onChange={(e) => setNomeMae(e.target.value)} className={styles.input} />
           <input type="text" placeholder="Profissão do Pai" value={profissaoPai} onChange={(e) => setProfissaoPai(e.target.value)} className={styles.input} />
           <input type="text" placeholder="Nacionalidade do Pai" value={nacionalidadePai} onChange={(e) => setNacionalidadePai(e.target.value)} required className={styles.input} />
           <input type="text" placeholder="Residência" value={residencia} onChange={(e) => setResidencia(e.target.value)} required className={styles.input} />
-          <input type="date" value={matriculaPrimitiva} onChange={(e) => setMatriculaPrimitiva(e.target.value)} required className={styles.input} placeholder="" />
-          <input type="date" value={matriculaAnoLetivo} onChange={(e) => setMatriculaAnoLetivo(e.target.value)} required className={styles.input} placeholder="" />
+          <input
+            type={matriculaPrimitiva ? "date" : "text"}
+            value={matriculaPrimitiva || ""}
+            onFocus={(e) => e.target.type = "date"}
+            onBlur={(e) => {
+              if (!matriculaPrimitiva) e.target.type = "text";
+            }}
+            onChange={(e) => setMatriculaPrimitiva(e.target.value)}
+            className={styles.input}
+            placeholder="Matrícula Primitiva"
+          />
+          <input
+            type={matriculaAnoLetivo ? "date" : "text"}
+            value={matriculaAnoLetivo || ""}
+            onFocus={(e) => e.target.type = "date"}
+            onBlur={(e) => {
+              if (!matriculaAnoLetivo) e.target.type = "text";
+            }}
+            onChange={(e) => setMatriculaAnoLetivo(e.target.value)}
+            className={styles.input}
+            placeholder="Matrícula Ano Letivo"
+          />
+
           <select value={anoCurso} onChange={(e) => setAnoCurso(e.target.value)} required className={styles.select}>
             <option value="">Selecione o Ano</option>
             <option value="1">1º Ano</option>
@@ -209,7 +240,7 @@ const buscarSugestoes = debounce(async (texto) => {
             <option value="3">3º Ano</option>
             <option value="4">4º Ano</option>
           </select>
-          
+
           <select value={sexo} onChange={(e) => setSexo(e.target.value)} required className={styles.select}>
             <option value="">Selecione o Sexo</option>
             <option value="Masculino">Masculino</option>
@@ -217,10 +248,10 @@ const buscarSugestoes = debounce(async (texto) => {
             <option value="Outro">Outro</option>
           </select>
 
-          <textarea 
-            placeholder="Observação (Opcional)" 
-            value={observacao} 
-            onChange={(e) => setObservacao(e.target.value)} 
+          <textarea
+            placeholder="Observação (Opcional)"
+            value={observacao}
+            onChange={(e) => setObservacao(e.target.value)}
             className={styles.textarea}
           ></textarea>
 
@@ -230,42 +261,42 @@ const buscarSugestoes = debounce(async (texto) => {
       )}
 
       {/* Formulário para notas */}
-{/* Formulário para notas */}
-{formularioNotas && (
-  <form onSubmit={handleSalvarNotas} className={styles.form}>
-    <input 
-      type="text" 
-      placeholder="Matemática" 
-      value={matematica} 
-      onChange={(e) => setMatematica(e.target.value)} 
-      className={styles.input} 
-    />
-    <input 
-      type="text" 
-      placeholder="Português" 
-      value={portugues} 
-      onChange={(e) => setPortugues(e.target.value)} 
-      className={styles.input} 
-    />
-    <input 
-      type="text" 
-      placeholder="Estudos Sociais" 
-      value={estudosSociais} 
-      onChange={(e) => setEstudosSociais(e.target.value)} 
-      className={styles.input} 
-    />
-    <input 
-      type="text" 
-      placeholder="Ciências" 
-      value={ciencias} 
-      onChange={(e) => setCiencias(e.target.value)} 
-      className={styles.input} 
-    />
+      {/* Formulário para notas */}
+      {formularioNotas && (
+        <form onSubmit={handleSalvarNotas} className={styles.form}>
+          <input
+            type="text"
+            placeholder="Matemática"
+            value={matematica}
+            onChange={(e) => setMatematica(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="Português"
+            value={portugues}
+            onChange={(e) => setPortugues(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="Estudos Sociais"
+            value={estudosSociais}
+            onChange={(e) => setEstudosSociais(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="Ciências"
+            value={ciencias}
+            onChange={(e) => setCiencias(e.target.value)}
+            className={styles.input}
+          />
 
-    <button type="submit" className={styles.button}>Salvar Notas</button>
-    <button type="button" className={styles.buttonSecundario} onClick={() => setFormularioNotas(false)}>Pular</button>
-  </form>
-)}
+          <button type="submit" className={styles.button}>Salvar Notas</button>
+          <button type="button" className={styles.buttonSecundario} onClick={() => setFormularioNotas(false)}>Pular</button>
+        </form>
+      )}
 
       <button className={styles.button} onClick={() => window.history.back()}>Voltar</button>
     </div>
