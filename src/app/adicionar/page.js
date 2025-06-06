@@ -6,7 +6,7 @@ import styles from "./page.module.css";
 import debounce from "lodash/debounce";
 
 export default function AdicionarAluno() {
-  const [telaAtual, setTelaAtual] = useState("menu");
+  const [telaAtual, setTelaAtual] = useState("menu"); 
   const [formularioNotas, setFormularioNotas] = useState(false);  // Novo estado para controlar o formulário de notas
 
   // Estados para informações do aluno
