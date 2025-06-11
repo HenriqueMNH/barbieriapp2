@@ -78,6 +78,17 @@ export default function AdicionarAluno() {
     }
   };
 
+  const [selecionouSugestao, setSelecionouSugestao] = useState(false);
+
+useEffect(() => {
+  if (!selecionouSugestao) {
+    buscarSugestoes(nome);
+  } else {
+    setSelecionouSugestao(false); // Resetar flag para próximas digitações
+  }
+}, [nome]);
+
+
   const handleSalvarNotas = async (e) => {
     e.preventDefault();
 
@@ -175,17 +186,48 @@ export default function AdicionarAluno() {
             <ul className={styles.sugestoesLista}>
               {sugestoes.map((aluno) => (
                 <li
-                  key={aluno.id}
-                  onClick={() => {
-                    setNome(aluno.aluno_nome);
-                    setSugestoes([]);
-                    setAlunoId(aluno.id);
-                    // preencha outros campos do aluno se quiser
-                  }}
-                  className={styles.sugestaoItem}
-                >
-                  {aluno.aluno_nome}
-                </li>
+  key={aluno.id}
+onClick={async () => {
+  try {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/buscar?busca=${encodeURIComponent(aluno.aluno_nome)}`);
+    const dados = res.data.dados[0]; // Pega o primeiro resultado
+
+    if (!dados) {
+      alert("Aluno não encontrado.");
+      return;
+    }
+
+
+      setNome(dados.aluno_nome);
+      setDataNascimento(dados.data_nascimento || "");
+      setCidadeNatal(dados.cidade_natal || "");
+      setNomePai(dados.nome_pai || "");
+      setNomeMae(dados.nome_mae || "");
+      setProfissaoPai(dados.profissao_pai || "");
+      setNacionalidadePai(dados.nacionalidade_pai || "");
+      setResidencia(dados.residencia || "");
+      setMatriculaPrimitiva(dados.matricula_primitiva || "");
+      setMatriculaAnoLetivo(dados.matricula_ano_letivo || "");
+      setAnoCurso(dados.ano_curso || "");
+      setSexo(dados.sexo || "");
+      setObservacao(dados.observacao || "");
+      setEliminacaoData(dados.eliminacao_data || "");
+      setEliminacaoCausa(dados.eliminacao_causa || "");
+      setReligiao(dados.religiao || "");
+    setAlunoId(dados.id);
+    setSugestoes([]);
+    setSelecionouSugestao(true);  // Marca que selecionou a sugestão
+  } catch (err) {
+    console.error("Erro ao buscar aluno:", err);
+    alert("Erro ao buscar dados do aluno.");
+  }
+}}
+
+  className={styles.sugestaoItem}
+>
+  {aluno.aluno_nome}
+</li>
+
               ))}
               <li>
                 <button onClick={() => setSugestoes([])}>Cancelar</button>
