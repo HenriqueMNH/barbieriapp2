@@ -22,7 +22,8 @@ export default function AdicionarAluno() {
   const [residencia, setResidencia] = useState("");
   const [matriculaPrimitiva, setMatriculaPrimitiva] = useState("");
   const [matriculaAnoLetivo, setMatriculaAnoLetivo] = useState("");
-  const [anoCurso, setAnoCurso] = useState("");
+const [anoSelecionado, setAnoSelecionado] = useState("");
+const [anosPreenchidos, setAnosPreenchidos] = useState([]);
   const [eliminacaoData, setEliminacaoData] = useState("");
   const [eliminacaoCausa, setEliminacaoCausa] = useState("");
   const [observacao, setObservacao] = useState(""); // Estado para observação;
@@ -36,6 +37,51 @@ export default function AdicionarAluno() {
 
   // Estado para o sexo
   const [sexo, setSexo] = useState("");
+
+  const handleSalvarAno = (e) => {
+  e.preventDefault();
+
+  const dadosDoAno = {
+    ano_curso: anoSelecionado,
+    aluno_id: alunoId,
+    matematica,
+    portugues,
+    estudos_sociais: estudosSociais,
+    ciencias,
+    // demais dados do aluno, se desejar separá-los por ano
+  };
+
+  setAnosPreenchidos((prev) => [...prev, dadosDoAno]);
+
+  // Limpar campos
+  setMatematica("");
+  setPortugues("");
+  setEstudosSociais("");
+  setCiencias("");
+  setAnoSelecionado("");
+
+  // Perguntar se quer continuar
+  const continuar = window.confirm("Deseja adicionar dados para outro ano?");
+  if (!continuar) {
+    enviarTodosOsDados(); // Função que envia todos os dados salvos
+  }
+};
+
+const enviarTodosOsDados = async () => {
+  try {
+    for (const ano of anosPreenchidos) {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, ano);
+    }
+    alert("Dados enviados com sucesso!");
+    resetForm();
+    setTelaAtual("menu");
+  } catch (error) {
+    console.error("Erro ao enviar os dados:", error);
+    alert("Erro ao salvar os dados.");
+  }
+};
+
+
 
   const handleSalvarAluno = async (e) => {
     e.preventDefault();
@@ -52,7 +98,7 @@ export default function AdicionarAluno() {
       residencia: residencia,
       matricula_primitiva: matriculaPrimitiva,
       matricula_ano_letivo: matriculaAnoLetivo,
-      ano_curso: anoCurso,
+      ano_curso: anoSelecionado,
       sexo: sexo,
       observacao: observacao,
       // Verifique se a data de eliminação é válida antes de enviar
@@ -122,7 +168,6 @@ useEffect(() => {
     setResidencia("");
     setMatriculaPrimitiva("");
     setMatriculaAnoLetivo("");
-    setAnoCurso("");
     setEliminacaoData("");
     setEliminacaoCausa("");
     setMatematica("");
@@ -208,7 +253,7 @@ onClick={async () => {
       setResidencia(dados.residencia || "");
       setMatriculaPrimitiva(dados.matricula_primitiva || "");
       setMatriculaAnoLetivo(dados.matricula_ano_letivo || "");
-      setAnoCurso(dados.ano_curso || "");
+setAnoSelecionado(dados.ano_curso || "");
       setSexo(dados.sexo || "");
       setObservacao(dados.observacao || "");
       setEliminacaoData(dados.eliminacao_data || "");
@@ -275,7 +320,7 @@ onClick={async () => {
             placeholder="Matrícula Ano Letivo"
           />
 
-          <select value={anoCurso} onChange={(e) => setAnoCurso(e.target.value)} required className={styles.select}>
+<select value={anoSelecionado} onChange={(e) => setAnoSelecionado(e.target.value)} required className={styles.select}>
             <option value="">Selecione o Ano</option>
             <option value="1">1º Ano</option>
             <option value="2">2º Ano</option>
@@ -304,41 +349,61 @@ onClick={async () => {
 
       {/* Formulário para notas */}
       {/* Formulário para notas */}
-      {formularioNotas && (
-        <form onSubmit={handleSalvarNotas} className={styles.form}>
-          <input
-            type="text"
-            placeholder="Matemática"
-            value={matematica}
-            onChange={(e) => setMatematica(e.target.value)}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Português"
-            value={portugues}
-            onChange={(e) => setPortugues(e.target.value)}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Estudos Sociais"
-            value={estudosSociais}
-            onChange={(e) => setEstudosSociais(e.target.value)}
-            className={styles.input}
-          />
-          <input
-            type="text"
-            placeholder="Ciências"
-            value={ciencias}
-            onChange={(e) => setCiencias(e.target.value)}
-            className={styles.input}
-          />
+{formularioNotas && (
+  <form onSubmit={handleSalvarAno} className={styles.form}>
+    <h3>Preencher notas por ano</h3>
 
-          <button type="submit" className={styles.button}>Salvar Notas</button>
-          <button type="button" className={styles.buttonSecundario} onClick={() => setFormularioNotas(false)}>Pular</button>
-        </form>
-      )}
+    <select
+      value={anoSelecionado}
+      onChange={(e) => setAnoSelecionado(e.target.value)}
+      required
+      className={styles.select}
+    >
+      <option value="">Selecione o Ano</option>
+      {[1, 2, 3, 4].map((ano) => (
+        <option
+          key={ano}
+          value={ano}
+          disabled={anosPreenchidos.some((a) => a.ano_curso === String(ano))}
+        >
+          {ano}º Ano
+        </option>
+      ))}
+    </select>
+
+    <input
+      type="text"
+      placeholder="Matemática"
+      value={matematica}
+      onChange={(e) => setMatematica(e.target.value)}
+      className={styles.input}
+    />
+    <input
+      type="text"
+      placeholder="Português"
+      value={portugues}
+      onChange={(e) => setPortugues(e.target.value)}
+      className={styles.input}
+    />
+    <input
+      type="text"
+      placeholder="Estudos Sociais"
+      value={estudosSociais}
+      onChange={(e) => setEstudosSociais(e.target.value)}
+      className={styles.input}
+    />
+    <input
+      type="text"
+      placeholder="Ciências"
+      value={ciencias}
+      onChange={(e) => setCiencias(e.target.value)}
+      className={styles.input}
+    />
+
+    <button type="submit" className={styles.button}>Salvar Ano</button>
+    <button type="button" className={styles.buttonSecundario} onClick={() => setFormularioNotas(false)}>Pular</button>
+  </form>
+)}
 
       <button className={styles.button} onClick={() => window.history.back()}>Voltar</button>
     </div>
