@@ -38,7 +38,7 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
   // Estado para o sexo
   const [sexo, setSexo] = useState("");
 
-  const handleSalvarAno = (e) => {
+const handleSalvarAno = async (e) => {
   e.preventDefault();
 
   const dadosDoAno = {
@@ -48,33 +48,33 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
     portugues,
     estudos_sociais: estudosSociais,
     ciencias,
-    // demais dados do aluno, se desejar separá-los por ano
   };
 
-  setAnosPreenchidos((prev) => [...prev, dadosDoAno]);
+  const novaLista = [...anosPreenchidos, dadosDoAno];
+  setAnosPreenchidos(novaLista);
 
-  // Limpar campos
   setMatematica("");
   setPortugues("");
   setEstudosSociais("");
   setCiencias("");
   setAnoSelecionado("");
 
-  // Perguntar se quer continuar
   const continuar = window.confirm("Deseja adicionar dados para outro ano?");
   if (!continuar) {
-    enviarTodosOsDados(); // Função que envia todos os dados salvos
+    await enviarTodosOsDados(novaLista); // passa a nova lista corretamente
   }
 };
 
-const enviarTodosOsDados = async () => {
+const enviarTodosOsDados = async (dados) => {
   try {
-    for (const ano of anosPreenchidos) {
+    for (const ano of dados) {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, ano);
     }
     alert("Dados enviados com sucesso!");
     resetForm();
     setTelaAtual("menu");
+    setFormularioNotas(false);
+    setAnosPreenchidos([]);
   } catch (error) {
     console.error("Erro ao enviar os dados:", error);
     alert("Erro ao salvar os dados.");
@@ -195,12 +195,6 @@ useEffect(() => {
       console.error("Erro ao buscar sugestões:", err);
     }
   }, 300);
-
-  // Sempre que o nome mudar, busca sugestões
-  useEffect(() => {
-    buscarSugestoes(nome);
-  }, [nome]);
-
 
 
   return (
