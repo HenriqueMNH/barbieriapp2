@@ -59,35 +59,47 @@ module.exports = {
         }
     },
 
-    async editarNotas(request, response) {
-        try {
-            const { aluno_id } = request.params;
-            const { matematica, portugues, estudos_sociais, ciencias } = request.body;
-    
-            const sql = `UPDATE notas SET matematica = ?, portugues = ?, estudos_sociais = ?, ciencias = ? WHERE aluno_id = ?;`;
-            const values = [matematica, portugues, estudos_sociais, ciencias, aluno_id];
-    
-            const [resultado] = await db.query(sql, values);
-    
-            if (resultado.affectedRows === 0) {
-                return response.status(404).json({
-                    sucesso: false,
-                    mensagem: 'Nenhuma nota encontrada para esse aluno.',
-                });
-            }
-    
-            return response.status(200).json({
-                sucesso: true,
-                mensagem: 'Notas atualizadas com sucesso.',
-            });
-        } catch (error) {
-            return response.status(500).json({
-                sucesso: false,
-                mensagem: 'Erro ao editar notas.',
-                dados: error.message,
-            });
-        }
-    },
+async editarNotas(request, response) {
+  try {
+    const { aluno_id } = request.params;
+    const { matematica, portugues, estudos_sociais, ciencias } = request.body;
+
+    const sqlUpdate = `
+      UPDATE notas 
+      SET matematica = ?, portugues = ?, estudos_sociais = ?, ciencias = ? 
+      WHERE aluno_id = ?;
+    `;
+    const values = [matematica, portugues, estudos_sociais, ciencias, aluno_id];
+
+    const [resultado] = await db.query(sqlUpdate, values);
+
+    if (resultado.affectedRows === 0) {
+      // Não encontrou notas para atualizar, então insere uma nova linha
+      const sqlInsert = `
+        INSERT INTO notas (aluno_id, matematica, portugues, estudos_sociais, ciencias)
+        VALUES (?, ?, ?, ?, ?);
+      `;
+      const insertValues = [aluno_id, matematica, portugues, estudos_sociais, ciencias];
+      await db.query(sqlInsert, insertValues);
+      
+      return response.status(201).json({
+        sucesso: true,
+        mensagem: 'Notas criadas com sucesso.',
+      });
+    }
+
+    return response.status(200).json({
+      sucesso: true,
+      mensagem: 'Notas atualizadas com sucesso.',
+    });
+  } catch (error) {
+    return response.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro ao editar notas.',
+      dados: error.message,
+    });
+  }
+},
     
 
     async apagarNotas(request, response) {

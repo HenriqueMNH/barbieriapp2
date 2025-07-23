@@ -53,7 +53,6 @@ export default function ListaAlunos() {
     setAlunoExpandidoId(prev => (prev === id ? null : id));
   };
 
-
   useEffect(() => {
     const fetchAlunos = async () => {
       try {
@@ -149,31 +148,30 @@ export default function ListaAlunos() {
   };
 
 
-  const verNotas = async (aluno) => { // Aqui ele vai poder ver as notas 
-    try {
-      if (!aluno || !aluno.id) {
-        alert("Aluno não selecionado corretamente.");
-        return;
-      }
+const verNotas = async (aluno) => {
+  setAlunoSelecionado(aluno);
+  setAlunoSelecionado(""); // ou o ano padrão se quiser
+  setNotas([]); // limpa as notas anteriores
 
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
 
-      if (response.data.sucesso && response.data.dados.length > 0) {
-        setNotas(response.data.dados);
-      } else {
-        setNotas([]);
-        alert("Nenhuma nota encontrada para este aluno.");
-      }
-
-      setAlunoSelecionado(aluno);
-      setModalVerNotasAberto(true);
-      setModalAberto(false);
-    } catch (error) {
-      console.error("Erro ao buscar notas:", error);
-      alert("Erro ao carregar notas.");
-      setNotas([]);
+    if (response.data.sucesso) {
+      const notasRecebidas = response.data.dados || [];
+      setNotas(notasRecebidas); // Mesmo que vazio, funciona
     }
-  };
+  } catch (erro) {
+    // Se der erro 404, assume que não tem notas ainda
+    if (erro.response && erro.response.status === 404) {
+      console.log("Aluno ainda sem notas cadastradas.");
+      setNotas([]); // Mantém o array vazio
+    } else {
+      console.error("Erro ao buscar notas:", erro);
+    }
+  }
+
+  setModalVerNotasAberto(true); // Abre o modal independentemente
+};
 
   const formatarData = (data) => { //Isso serve para deixar a data mas bonita e se livrar das outras informações, deixando apenas o dia/mês/ano para ver
     const novaData = new Date(data);
