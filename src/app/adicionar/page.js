@@ -41,8 +41,10 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
 const handleSalvarAno = async (e) => {
   e.preventDefault();
 
+  const anoAtual = anoSelecionado;
+
   const dadosDoAno = {
-    ano_curso: anoSelecionado,
+    ano_curso: anoAtual,
     aluno_id: alunoId,
     matematica,
     portugues,
@@ -50,21 +52,32 @@ const handleSalvarAno = async (e) => {
     ciencias,
   };
 
-  const novaLista = [...anosPreenchidos, dadosDoAno];
-  setAnosPreenchidos(novaLista);
+  // Salva no backend imediatamente
+  try {
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, dadosDoAno);
 
-  setMatematica("");
-  setPortugues("");
-  setEstudosSociais("");
-  setCiencias("");
-  setAnoSelecionado("");
+    // Se quiser: também salvar localmente
+    const novaLista = [...anosPreenchidos, dadosDoAno];
+    setAnosPreenchidos(novaLista);
 
-  const continuar = window.confirm("Deseja adicionar dados para outro ano?");
-  if (!continuar) {
-    await enviarTodosOsDados(novaLista); // passa a nova lista corretamente
+    alert("Notas salvas com sucesso!");
+
+    // Limpar campos
+    setMatematica("");
+    setPortugues("");
+    setEstudosSociais("");
+    setCiencias("");
+    setAnoSelecionado("");
+
+    const continuar = window.confirm("Deseja adicionar dados para outro ano?");
+    if (!continuar) {
+      setFormularioNotas(false); // ou redirecionar, ou dar mensagem final
+    }
+  } catch (error) {
+    console.error("Erro ao salvar notas:", error);
+    alert("Erro ao salvar as notas. Verifique os campos e tente novamente.");
   }
 };
-
 const enviarTodosOsDados = async (dados) => {
   try {
     for (const ano of dados) {
@@ -135,49 +148,43 @@ useEffect(() => {
 }, [nome]);
 
 
-  const handleSalvarNotas = async (e) => {
-    e.preventDefault();
-
-    const notasData = {
-      aluno_id: alunoId,  // Agora você pode usar o alunoId aqui
+const handleSalvarNotas = async () => {
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, {
+      aluno_id: alunoId,
       matematica,
       portugues,
-      estudos_sociais: estudosSociais,
-      ciencias,
-    };
+      estudos_sociais,
+      ciencias
+    });
 
-    try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, notasData);
-      alert("Notas cadastradas com sucesso!");
-      setTelaAtual("menu");
-      resetForm();
-    } catch (error) {
-      console.error("Erro ao cadastrar notas:", error);
-      alert("Ocorreu um erro ao salvar as notas.");
+    if (response.data.sucesso) {
+      const adicionarOutroAno = window.confirm("Notas salvas com sucesso. Deseja adicionar notas para outro ano?");
+
+      if (adicionarOutroAno) {
+        // Limpa os campos e permite escolher novo ano
+        setMatematica('');
+        setPortugues('');
+        setEstudosSociais('');
+        setCiencias('');
+        setAnoSelecionado('');  // ou permitir nova escolha
+
+        // IMPORTANTE: não salvar de novo aqui, já foi salvo acima
+      } else {
+        alert("Cadastro finalizado.");
+        // Feche modal ou resete tudo
+        setFormularioNotas(false);
+        setAlunoId(null);
+      }
+    } else {
+      alert("Erro ao salvar notas.");
     }
-  };
 
-  const resetForm = () => {
-    setNome("");
-    setDataNascimento("");
-    setCidadeNatal("");
-    setNomePai("");
-    setNomeMae("");
-    setProfissaoPai("");
-    setNacionalidadePai("");
-    setResidencia("");
-    setMatriculaPrimitiva("");
-    setMatriculaAnoLetivo("");
-    setEliminacaoData("");
-    setEliminacaoCausa("");
-    setMatematica("");
-    setPortugues("");
-    setEstudosSociais("");
-    setCiencias("");
-    setObservacao(""); // Resetando a observação
-    setSexo("");  // Limpar o campo sexo ao resetar o formulário
-    setReligiao("");
-  };
+  } catch (error) {
+    console.error("Erro ao salvar notas:", error);
+    alert("Erro ao salvar notas.");
+  }
+};
 
   const buscarSugestoes = debounce(async (texto) => {
     if (!texto || texto.length < 2) {
@@ -226,41 +233,31 @@ useEffect(() => {
               {sugestoes.map((aluno) => (
                 <li
   key={aluno.id}
-onClick={async () => {
-  try {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/buscar?busca=${encodeURIComponent(aluno.aluno_nome)}`);
-    const dados = res.data.dados[0]; // Pega o primeiro resultado
+onClick={() => {
+  const dados = aluno;
 
-    if (!dados) {
-      alert("Aluno não encontrado.");
-      return;
-    }
+  setNome(dados.aluno_nome);
+  setDataNascimento(dados.data_nascimento || "");
+  setCidadeNatal(dados.cidade_natal || "");
+  setNomePai(dados.nome_pai || "");
+  setNomeMae(dados.nome_mae || "");
+  setProfissaoPai(dados.profissao_pai || "");
+  setNacionalidadePai(dados.nacionalidade_pai || "");
+  setResidencia(dados.residencia || "");
+  setMatriculaPrimitiva(dados.matricula_primitiva || "");
+  setMatriculaAnoLetivo(dados.matricula_ano_letivo || "");
+  setAnoSelecionado(dados.ano_curso || "");
+  setSexo(dados.sexo || "");
+  setObservacao(dados.observacao || "");
+  setEliminacaoData(dados.eliminacao_data || "");
+  setEliminacaoCausa(dados.eliminacao_causa || "");
+  setReligiao(dados.religiao || "");
+  setAlunoId(dados.id);
 
-
-      setNome(dados.aluno_nome);
-      setDataNascimento(dados.data_nascimento || "");
-      setCidadeNatal(dados.cidade_natal || "");
-      setNomePai(dados.nome_pai || "");
-      setNomeMae(dados.nome_mae || "");
-      setProfissaoPai(dados.profissao_pai || "");
-      setNacionalidadePai(dados.nacionalidade_pai || "");
-      setResidencia(dados.residencia || "");
-      setMatriculaPrimitiva(dados.matricula_primitiva || "");
-      setMatriculaAnoLetivo(dados.matricula_ano_letivo || "");
-setAnoSelecionado(dados.ano_curso || "");
-      setSexo(dados.sexo || "");
-      setObservacao(dados.observacao || "");
-      setEliminacaoData(dados.eliminacao_data || "");
-      setEliminacaoCausa(dados.eliminacao_causa || "");
-      setReligiao(dados.religiao || "");
-    setAlunoId(dados.id);
-    setSugestoes([]);
-    setSelecionouSugestao(true);  // Marca que selecionou a sugestão
-  } catch (err) {
-    console.error("Erro ao buscar aluno:", err);
-    alert("Erro ao buscar dados do aluno.");
-  }
+  setSugestoes([]);
+  setSelecionouSugestao(true);
 }}
+
 
   className={styles.sugestaoItem}
 >
