@@ -38,44 +38,96 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
   // Estado para o sexo
   const [sexo, setSexo] = useState("");
 
-const handleSalvarAno = async (e) => {
-  e.preventDefault();
-
-  const anoAtual = anoSelecionado;
-
-  const dadosDoAno = {
-    ano_curso: anoAtual,
-    aluno_id: alunoId,
-    matematica,
-    portugues,
-    estudos_sociais: estudosSociais,
-    ciencias,
-  };
-
-  // Salva no backend imediatamente
-  try {
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, dadosDoAno);
-
-    // Se quiser: também salvar localmente
-    const novaLista = [...anosPreenchidos, dadosDoAno];
-    setAnosPreenchidos(novaLista);
-
-    alert("Notas salvas com sucesso!");
-
-    // Limpar campos
+    const resetarFormulario = () => {
+    setAlunoId(null);
+    setNome("");
+    setDataNascimento("");
+    setCidadeNatal("");
+    setNomePai("");
+    setNomeMae("");
+    setProfissaoPai("");
+    setNacionalidadePai("");
+    setResidencia("");
+    setMatriculaPrimitiva("");
+    setMatriculaAnoLetivo("");
+    setAnoSelecionado("");
+    setSexo("");
+    setObservacao("");
+    setEliminacaoData("");
+    setEliminacaoCausa("");
+    setReligiao("");
     setMatematica("");
     setPortugues("");
     setEstudosSociais("");
     setCiencias("");
-    setAnoSelecionado("");
+    setAnosPreenchidos([]);
+    setFormularioNotas(false);
+  };
 
-    const continuar = window.confirm("Deseja adicionar dados para outro ano?");
-    if (!continuar) {
-      setFormularioNotas(false); // ou redirecionar, ou dar mensagem final
+
+const handleSalvarAno = async (e) => {
+  e.preventDefault();
+
+  if (!anoSelecionado) {
+    alert("Por favor, selecione um ano para salvar as notas.");
+    return;
+  }
+
+  // Prepara dados do aluno
+  const alunoData = {
+    aluno_nome: nome,
+    data_nascimento: dataNascimento,
+    cidade_natal: cidadeNatal,
+    nome_pai: nomePai,
+    nome_mae: nomeMae,
+    profissao_pai: profissaoPai,
+    nacionalidade_pai: nacionalidadePai,
+    residencia: residencia,
+    matricula_primitiva: matriculaPrimitiva,
+    matricula_ano_letivo: matriculaAnoLetivo,
+    ano_curso: anoSelecionado,
+    sexo: sexo,
+    observacao: observacao,
+    eliminacao_data: eliminacaoData || null,
+    eliminacao_causa: eliminacaoCausa,
+    religiao: religiao,
+  };
+
+  try {
+    // Cria novo aluno
+    const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
+    const novoAlunoId = alunoResponse.data.dados.id;
+
+    // Cadastra as notas para esse novo aluno
+    const dadosDoAno = {
+      ano_curso: anoSelecionado,
+      aluno_id: novoAlunoId,
+      matematica,
+      portugues,
+      estudos_sociais: estudosSociais,
+      ciencias,
+    };
+
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, dadosDoAno);
+
+    const continuar = window.confirm("Deseja adicionar notas de outro ano para este mesmo aluno?");
+
+    if (continuar) {
+      // Limpa apenas as notas e o ano, mas mantém os dados pessoais
+      setAnoSelecionado("");
+      setMatematica("");
+      setPortugues("");
+      setEstudosSociais("");
+      setCiencias("");
+    } else {
+      // Limpa tudo
+      resetarFormulario();
+      setTelaAtual("aluno");
     }
+
   } catch (error) {
-    console.error("Erro ao salvar notas:", error);
-    alert("Erro ao salvar as notas. Verifique os campos e tente novamente.");
+    console.error("Erro ao salvar aluno ou notas:", error);
+    alert("Erro ao salvar dados. Verifique as informações e tente novamente.");
   }
 };
 const enviarTodosOsDados = async (dados) => {
@@ -95,47 +147,46 @@ const enviarTodosOsDados = async (dados) => {
 };
 
 
+const handleSalvarAluno = async (e) => {
+  e.preventDefault();
 
-  const handleSalvarAluno = async (e) => {
-    e.preventDefault();
-
-    // Dados do aluno
-    const alunoData = {
-      aluno_nome: nome,
-      data_nascimento: dataNascimento,
-      cidade_natal: cidadeNatal,
-      nome_pai: nomePai,
-      nome_mae: nomeMae,
-      profissao_pai: profissaoPai,
-      nacionalidade_pai: nacionalidadePai,
-      residencia: residencia,
-      matricula_primitiva: matriculaPrimitiva,
-      matricula_ano_letivo: matriculaAnoLetivo,
-      ano_curso: anoSelecionado,
-      sexo: sexo,
-      observacao: observacao,
-      // Verifique se a data de eliminação é válida antes de enviar
-      eliminacao_data: eliminacaoData ? eliminacaoData : null,  // Se estiver vazio, envia null
-      eliminacao_causa: eliminacaoCausa,
-      religiao: religiao,
-    };
-
-    console.log("Dados do aluno enviados:", alunoData);
-
-    try {
-      const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
-      console.log("Resposta do servidor:", alunoResponse);
-      setAlunoId(alunoResponse.data.dados);  // Armazene o alunoId
-      // Após salvar o aluno, mostramos o formulário de notas
-      setFormularioNotas(true);
-
-      alert("Aluno cadastrado com sucesso! Agora, insira as notas.");
-
-    } catch (error) {
-      console.error("Erro ao cadastrar aluno:", error.response || error);
-      alert("Ocorreu um erro ao salvar as informações.");
-    }
+  const alunoData = {
+    aluno_nome: nome,
+    data_nascimento: dataNascimento,
+    cidade_natal: cidadeNatal,
+    nome_pai: nomePai,
+    nome_mae: nomeMae,
+    profissao_pai: profissaoPai,
+    nacionalidade_pai: nacionalidadePai,
+    residencia: residencia,
+    matricula_primitiva: matriculaPrimitiva,
+    matricula_ano_letivo: matriculaAnoLetivo,
+    ano_curso: anoSelecionado,
+    sexo: sexo,
+    observacao: observacao,
+    eliminacao_data: eliminacaoData || null,
+    eliminacao_causa: eliminacaoCausa,
+    religiao: religiao,
   };
+
+  try {
+    const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
+
+    console.log("Resposta do servidor:", alunoResponse.data);
+
+    // Ajuste aqui conforme a resposta correta
+    const idAlunoCriado = alunoResponse.data.dados.id || alunoResponse.data.dados;
+    setAlunoId(idAlunoCriado);
+
+    setFormularioNotas(true);
+
+    alert("Aluno cadastrado com sucesso! Agora, insira as notas.");
+  } catch (error) {
+    console.error("Erro ao cadastrar aluno:", error.response || error);
+    alert("Ocorreu um erro ao salvar as informações.");
+  }
+};
+
 
   const [selecionouSugestao, setSelecionouSugestao] = useState(false);
 
@@ -154,7 +205,7 @@ const handleSalvarNotas = async () => {
       aluno_id: alunoId,
       matematica,
       portugues,
-      estudos_sociais,
+      estudosSociais,
       ciencias
     });
 
@@ -206,16 +257,21 @@ const handleSalvarNotas = async () => {
 
   return (
     <div className={styles.adicionarPage}>
-      {telaAtual === "menu" && (
-        <div>
-          <h1 className={styles.title}>Adicionar Aluno</h1>
-          <button className={styles.button} onClick={() => setTelaAtual("aluno")}>
-            Cadastrar Aluno
-          </button>
-        </div>
-      )}
-
-      {telaAtual === "aluno" && (
+{telaAtual === "menu" && (
+  <div>
+    <h1 className={styles.title}>Adicionar Aluno</h1>
+<button
+  className={styles.button}
+  onClick={() => {
+    resetarFormulario();
+    setAlunoId(null);  // garante limpar o id
+    setTelaAtual("aluno");
+  }}
+>
+  Cadastrar Aluno
+</button>
+  </div>
+)}      {telaAtual === "aluno" && (
         <form onSubmit={handleSalvarAluno} className={styles.form}>
           {/* Campo nome */}
           <input
@@ -233,7 +289,7 @@ const handleSalvarNotas = async () => {
               {sugestoes.map((aluno) => (
                 <li
   key={aluno.id}
-onClick={() => {
+onClick={async () => {
   const dados = aluno;
 
   setNome(dados.aluno_nome);
@@ -253,6 +309,11 @@ onClick={() => {
   setEliminacaoCausa(dados.eliminacao_causa || "");
   setReligiao(dados.religiao || "");
   setAlunoId(dados.id);
+const resNotas = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${dados.id}`);
+const notasPorAno = resNotas.data.dados; // supondo que venha um array com ano_curso + notas
+
+setAnosPreenchidos(notasPorAno); // Isso vai evitar duplicação nos <select disabled={...}>
+
 
   setSugestoes([]);
   setSelecionouSugestao(true);

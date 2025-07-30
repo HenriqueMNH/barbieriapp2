@@ -1,85 +1,85 @@
 const db = require('../database/connection');
 
 module.exports = {
-    async listarNotas(request, response) {
-        try {
-            const { aluno_id } = request.params; // Acessando o ID do aluno na URL
+async listarNotas(request, response) {
+    try {
+        const { aluno_id } = request.params;
 
-            // Consulta para pegar as notas do aluno
-            const sql = `SELECT n.*, a.aluno_nome FROM notas n
+        const sql = `
+            SELECT n.*, a.aluno_nome FROM notas n
             JOIN alunos a ON n.aluno_id = a.id
             WHERE n.aluno_id = ?
-            `;
-            const [notas] = await db.query(sql, [aluno_id]);
+            ORDER BY n.ano_curso;
+        `;
+        const [notas] = await db.query(sql, [aluno_id]);
 
-            // Verifica se existem notas para o aluno
-            if (notas.length === 0) {
-                return response.status(404).json({
-                    sucesso: false,
-                    mensagem: 'Notas não encontradas para este aluno.',
-                    dados: null
-                });
-            }
-
-            return response.status(200).json({
-                sucesso: true,
-                mensagem: 'Notas dos alunos.',
-                dados: notas
-            });
-        } catch (error) {
-            return response.status(500).json({
+        if (notas.length === 0) {
+            return response.status(404).json({
                 sucesso: false,
-                mensagem: 'Erro na requisição.',
-                dados: error.message
+                mensagem: 'Notas não encontradas para este aluno.',
+                dados: null
             });
         }
-    },
 
-    async cadastrarNotas(request, response) {
-        try {
-            const { aluno_id, matematica, portugues, estudos_sociais, ciencias } = request.body;
+        return response.status(200).json({
+            sucesso: true,
+            mensagem: 'Notas dos alunos.',
+            dados: notas
+        });
+    } catch (error) {
+        return response.status(500).json({
+            sucesso: false,
+            mensagem: 'Erro na requisição.',
+            dados: error.message
+        });
+    }
+},
 
-            const sql = `INSERT INTO notas (aluno_id, matematica, portugues, estudos_sociais, ciencias)
-                         VALUES (?, ?, ?, ?, ?);`;
+async cadastrarNotas(request, response) {
+    try {
+        const { aluno_id, ano_curso, matematica, portugues, estudos_sociais, ciencias } = request.body;
 
-            const values = [aluno_id, matematica, portugues, estudos_sociais, ciencias];
+        const sql = `INSERT INTO notas (aluno_id, ano_curso, matematica, portugues, estudos_sociais, ciencias)
+                     VALUES (?, ?, ?, ?, ?, ?);`;
 
-            await db.query(sql, values);
+        const values = [aluno_id, ano_curso, matematica, portugues, estudos_sociais, ciencias];
 
-            return response.status(200).json({
-                sucesso: true,
-                mensagem: 'Notas cadastradas com sucesso.',
-            });
-        } catch (error) {
-            return response.status(500).json({
-                sucesso: false,
-                mensagem: 'Erro ao cadastrar notas.',
-                dados: error.message,
-            });
-        }
-    },
+        await db.query(sql, values);
+
+        return response.status(200).json({
+            sucesso: true,
+            mensagem: 'Notas cadastradas com sucesso.',
+        });
+    } catch (error) {
+        return response.status(500).json({
+            sucesso: false,
+            mensagem: 'Erro ao cadastrar notas.',
+            dados: error.message,
+        });
+    }
+},
 
 async editarNotas(request, response) {
   try {
     const { aluno_id } = request.params;
-    const { matematica, portugues, estudos_sociais, ciencias } = request.body;
+    const { ano_curso, matematica, portugues, estudos_sociais, ciencias } = request.body;
 
     const sqlUpdate = `
       UPDATE notas 
       SET matematica = ?, portugues = ?, estudos_sociais = ?, ciencias = ? 
-      WHERE aluno_id = ?;
+      WHERE aluno_id = ? AND ano_curso = ?;
     `;
-    const values = [matematica, portugues, estudos_sociais, ciencias, aluno_id];
+    const values = [matematica, portugues, estudos_sociais, ciencias, aluno_id, ano_curso];
 
     const [resultado] = await db.query(sqlUpdate, values);
 
     if (resultado.affectedRows === 0) {
-      // Não encontrou notas para atualizar, então insere uma nova linha
+      // Se não encontrou nenhuma nota para aquele ano, insere nova
       const sqlInsert = `
-        INSERT INTO notas (aluno_id, matematica, portugues, estudos_sociais, ciencias)
-        VALUES (?, ?, ?, ?, ?);
+        INSERT INTO notas (aluno_id, ano_curso, matematica, portugues, estudos_sociais, ciencias)
+        VALUES (?, ?, ?, ?, ?, ?);
       `;
-      const insertValues = [aluno_id, matematica, portugues, estudos_sociais, ciencias];
+      const insertValues = [aluno_id, ano_curso, matematica, portugues, estudos_sociais, ciencias];
       await db.query(sqlInsert, insertValues);
       
       return response.status(201).json({
