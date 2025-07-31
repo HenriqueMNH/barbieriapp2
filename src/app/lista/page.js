@@ -18,6 +18,7 @@ export default function ListaAlunos() {
     sexo: "",
   });
   const [notas, setNotas] = useState([]);
+  const [alunosSelecionados, setAlunosSelecionados] = useState([]);
   const [alunoSelecionado, setAlunoSelecionado] = useState(null);
   const [anoCurso, setAnoCurso] = useState('');  // Armazenando o ano selecionado
   const [modalAberto, setModalAberto] = useState(false);
@@ -66,6 +67,23 @@ export default function ListaAlunos() {
     fetchAlunos();
   }, []);
 
+  const toggleSelecionarAluno = (id) => {
+  setAlunosSelecionados((prevSelecionados) =>
+    prevSelecionados.includes(id)
+      ? prevSelecionados.filter((alunoId) => alunoId !== id)
+      : [...prevSelecionados, id]
+  );
+};
+
+const toggleSelecionarTodos = () => {
+  if (todosSelecionados) {
+    setAlunosSelecionados([]);
+  } else {
+    setAlunosSelecionados(alunosFiltrados.map((a) => a.id));
+  }
+};
+
+
   const handleFiltroChange = (e) => {
     setFiltros({ ...filtros, [e.target.name]: e.target.value });
   };
@@ -110,15 +128,18 @@ export default function ListaAlunos() {
 
   const filtrosAtivos = Object.values(filtros).some((valor) => valor !== "");
 
-  const alunosFiltrados = alunos.filter((aluno) => { // Aqui ele está realizando a filtragem 
-    const filtroNome = filtros.nome ? aluno.aluno_nome.toLowerCase().includes(filtros.nome.toLowerCase()) : true;
-    const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
-    const filtroAnoEstudo = filtros.anoEstudo ? aluno.ano_curso?.toString() === filtros.anoEstudo : true;
-    const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
-    const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
-    const filtroSexo = filtros.sexo ? aluno.sexo === filtros.sexo : true;
-    return filtroNome && filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo;
-  });
+const alunosFiltrados = alunos.filter((aluno) => {
+  const filtroNome = filtros.nome ? aluno.aluno_nome.toLowerCase().includes(filtros.nome.toLowerCase()) : true;
+  const filtroAno = filtros.ano ? aluno.matricula_ano_letivo.includes(filtros.ano) : true;
+  const filtroAnoEstudo = filtros.anoEstudo ? aluno.ano_curso?.toString() === filtros.anoEstudo : true;
+  const filtroSerie = filtros.serie ? aluno.ano_curso?.toString()[1] === filtros.serie : true;
+  const filtroPeriodo = filtros.periodo ? aluno.periodo === filtros.periodo : true;
+  const filtroSexo = filtros.sexo ? aluno.sexo === filtros.sexo : true;
+  return filtroNome && filtroAno && filtroAnoEstudo && filtroSerie && filtroPeriodo && filtroSexo;
+});
+
+const todosSelecionados = alunosFiltrados.length > 0 && alunosFiltrados.every(aluno => alunosSelecionados.includes(aluno.id));
+
 
   const deletarAluno = async (aluno) => { //Aqui ele realiza a exclusão de alunos 
     if (!aluno || !aluno.id) {
@@ -527,8 +548,32 @@ const verNotas = async (aluno) => {
         <input type="text" name="serie" placeholder="Série" value={filtros.serie} onChange={handleFiltroChange} />
         <input type="text" name="periodo" placeholder="Período" value={filtros.periodo} onChange={handleFiltroChange} />
         <input type="text" name="sexo" placeholder="Sexo" value={filtros.sexo} onChange={handleFiltroChange} />
-        <button onClick={resetarFiltros}>Resetar Filtros</button>
-      </div>
+  <button onClick={resetarFiltros}>Resetar Filtros</button>
+  {alunosSelecionados.length > 0 && (
+    <button
+      style={{ backgroundColor: "#c00", color: "#fff", marginLeft: "10px" }}
+      onClick={async () => {
+        if (!confirm("Tem certeza que deseja excluir os alunos selecionados?")) return;
+        try {
+          await Promise.all(
+            alunosSelecionados.map(id =>
+              axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${id}`)
+            )
+          );
+          alert("Alunos excluídos com sucesso!");
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos`);
+          setAlunos(response.data.dados);
+          setAlunosSelecionados([]);
+        } catch (error) {
+          console.error("Erro ao excluir alunos:", error);
+          alert("Erro ao excluir alunos.");
+        }
+      }}
+    >
+      Excluir Selecionados
+    </button>
+  )}
+</div>
 
 
       {filtrosAtivos ? (  // Aqui é os dados que estão nos retangulos azuis 
@@ -536,6 +581,14 @@ const verNotas = async (aluno) => {
           <table className={styles.table}>
             <thead>
               <tr>
+              <th>
+  <input
+    type="checkbox"
+    checked={todosSelecionados}
+    onChange={toggleSelecionarTodos}
+  />
+</th>
+
                 <th>Nome</th>
                 <th>Data Nascimento</th>
                 <th>Naturalidade</th>
@@ -551,10 +604,17 @@ const verNotas = async (aluno) => {
                 <th>Edição</th>
               </tr>
             </thead>
-            <tbody>
-              {alunosFiltrados.map((aluno) => (
-                <Fragment key={aluno.id}>
-                  <tr>
+<tbody>
+  {alunosFiltrados.map((aluno) => (
+    <Fragment key={aluno.id}>
+      <tr>
+        <td>
+          <input
+            type="checkbox"
+            checked={alunosSelecionados.includes(aluno.id)}
+            onChange={() => toggleSelecionarAluno(aluno.id)}
+          />
+        </td>
                     <td>
                       {aluno.aluno_nome}
                       <button className={styles.pdfButton} onClick={() => gerarPdfAluno(aluno)}>Gerar PDF</button>
