@@ -6,6 +6,8 @@ import axios from "axios";
 import styles from "./page.module.css";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import BoletimPDF from '../../../components/pdf/BoletimPDF';
+import { pdf } from '@react-pdf/renderer';
+
 
 
 export default function ListaAlunos() {
@@ -621,52 +623,73 @@ return (
             </tr>
           </thead>
           <tbody>
-            {alunosFiltrados.map((aluno) => {
-              const alunoComNotas = {
-                nome: aluno.aluno_nome,
-                matricula: aluno.matricula_primitiva,
-                ano: aluno.ano_curso,
-                dataNascimento: aluno.data_nascimento,
-                cidadeNatal: aluno.cidade_natal,
-                sexo: aluno.sexo,
-                religiao: aluno.religiao,
-                profissaoPai: aluno.profissao_pai,
-                nacionalidadePai: aluno.nacionalidade_pai,
-                telefone: aluno.telefone,
-                email: aluno.email,
-                observacao: aluno.observacao,
-                notas: notasDoAluno[aluno.id] || []
+{alunosFiltrados.map((aluno) => {
+  return (
+    <React.Fragment key={aluno.id}>
+      <tr>
+        <td>
+          <input
+            type="checkbox"
+            checked={alunosSelecionados.includes(aluno.id)}
+            onChange={() => toggleSelecionarAluno(aluno.id)}
+          />
+        </td>
+        <td>
+          {aluno.aluno_nome}
+          <button
+            className={styles.pdfButton}
+            onClick={async () => {
+              try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+                const notas = response.data.dados || [];
+                console.log("Notas do backend:", notas);
+
+                // ✅ Agrupar aqui, com as notas atualizadas
+                const notasPorAno = notas.reduce((acc, nota) => {
+                  const ano = nota.ano || "Sem Ano";
+                  if (!acc[ano]) acc[ano] = [];
+                  acc[ano].push(nota);
+                  return acc;
+                }, {});
+                console.log("Notas agrupadas:", notasPorAno);
+
+                const alunoComNotas = {
+                  nome: aluno.aluno_nome,
+                  matricula: aluno.matricula_primitiva,
+                  ano: aluno.ano_curso,
+                  dataNascimento: aluno.data_nascimento,
+                  cidadeNatal: aluno.cidade_natal,
+                  sexo: aluno.sexo,
+                  religiao: aluno.religiao,
+                  profissaoPai: aluno.profissao_pai,
+                  nacionalidadePai: aluno.nacionalidade_pai,
+                  telefone: aluno.telefone,
+                  email: aluno.email,
+                  observacao: aluno.observacao,
+                  notasPorAno // ← este é o correto agora
+                  
               };
+                console.log("Objeto aluno com notas:", alunoComNotas);
 
-              
-              
-
-              return (
-                <React.Fragment key={aluno.id}>
-                  <tr>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={alunosSelecionados.includes(aluno.id)}
-                        onChange={() => toggleSelecionarAluno(aluno.id)}
-                      />
-                    </td>
-                    <td>
-                      {aluno.aluno_nome}
-                      <PDFDownloadLink
-                        document={<BoletimPDF aluno={alunoComNotas} />}
-                        fileName={`boletim-${aluno.aluno_nome}.pdf`}
-                      >
-                        {({ loading }) => (
-                          <button className={styles.pdfButton}>
-                            {loading ? "Gerando PDF..." : "Gerar PDF"}
-                          </button>
-                        )}
-                      </PDFDownloadLink>
-                      <button onClick={() => toggleExpandir(aluno.id)}>
-                        {alunoExpandidoId === aluno.id ? "▲" : "▼"}
-                      </button>
-                    </td>
+                const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `boletim-${aluno.aluno_nome}.pdf`;
+                link.click();
+                URL.revokeObjectURL(url);
+              } catch (err) {
+                console.error("Erro ao gerar PDF:", err);
+                alert("Erro ao gerar PDF. Tente novamente.");
+              }
+            }}
+          >
+            Gerar PDF
+          </button>
+          <button onClick={() => toggleExpandir(aluno.id)}>
+            {alunoExpandidoId === aluno.id ? "▲" : "▼"}
+          </button>
+        </td>
                     <td>{new Date(aluno.data_nascimento).toLocaleDateString()}</td>
                     <td>{aluno.cidade_natal}</td>
                     <td>{aluno.sexo}</td>

@@ -26,8 +26,8 @@ const styles = StyleSheet.create({
 });
 
 const BoletimPDF = ({ aluno }) => {
-  console.log("Aluno recebido no BoletimPDF:", aluno);
-  console.log("Notas recebidas no BoletimPDF:", aluno.notas);
+console.log("Notas recebidas no BoletimPDF:", aluno.notasPorAno);
+
 
   // Formatar matrícula (se for data ISO, extrai o ano)
   let matriculaFormatada = aluno.matricula || "";
@@ -53,15 +53,7 @@ const BoletimPDF = ({ aluno }) => {
   };
 
   // Normalizar notas para garantir que é array
-  const notasArray = Array.isArray(aluno.notas) ? aluno.notas : [];
-
-  // Agrupa notas por ano
-  const notasPorAno = notasArray.reduce((acc, nota) => {
-    const ano = nota.ano || "Sem Ano";
-    if (!acc[ano]) acc[ano] = [];
-    acc[ano].push(nota);
-    return acc;
-  }, {});
+const notasPorAno = aluno.notasPorAno || {};
 
   return (
     <Document>
