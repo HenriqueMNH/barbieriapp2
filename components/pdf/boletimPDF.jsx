@@ -54,7 +54,20 @@ export default function BoletimPDF({ aluno }) {
         {/* Informações do aluno */}
         <View style={styles.section}>
           <Text>Nome: {aluno.aluno_nome}</Text>
-          <Text>Matrícula: {aluno.id}</Text>
+          {aluno.id !== undefined && aluno.id !== null ? (
+            <Text>ID: {aluno.id}</Text>
+          ) : null}
+          {aluno.matricula ? <Text>Matrícula: {aluno.matricula}</Text> : null}
+          {aluno.ano ? <Text>Ano do Curso: {aluno.ano}</Text> : null}
+          {aluno.dataNascimento ? <Text>Data de Nascimento: {aluno.dataNascimento}</Text> : null}
+          {aluno.cidadeNatal ? <Text>Cidade Natal: {aluno.cidadeNatal}</Text> : null}
+          {aluno.sexo ? <Text>Sexo: {aluno.sexo}</Text> : null}
+          {aluno.religiao ? <Text>Religião: {aluno.religiao}</Text> : null}
+          {aluno.profissaoPai ? <Text>Profissão do Pai: {aluno.profissaoPai}</Text> : null}
+          {aluno.nacionalidadePai ? <Text>Nacionalidade do Pai: {aluno.nacionalidadePai}</Text> : null}
+          {aluno.telefone ? <Text>Telefone: {aluno.telefone}</Text> : null}
+          {aluno.email ? <Text>Email: {aluno.email}</Text> : null}
+          {aluno.observacao ? <Text>Observação: {aluno.observacao}</Text> : null}
         </View>
 
         {/* Notas por ano */}

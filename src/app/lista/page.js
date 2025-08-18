@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import styles from "./page.module.css";
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import BoletimPDF from '../../../components/pdf/BoletimPDF';
+import BoletimPDF from '../../../components/pdf/boletimPDF';
 import { pdf } from '@react-pdf/renderer';
-
 
 
 export default function ListaAlunos() {
@@ -368,6 +367,50 @@ return (
       </div>
     )}
 
+          {modalAberto && ( //Modal para editar as notas do aluno cujo botão editar notas for clicado 
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h2>Editar Notas de {alunoSelecionado?.aluno_nome || "Aluno"}</h2>
+            <div>
+              <label>Matemática</label>
+              <input
+                type="text"
+                value={notasEditando.matematica || ""}
+                onChange={(e) => setNotasEditando({ ...notasEditando, matematica: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Português</label>
+              <input
+                type="text"
+                value={notasEditando.portugues || ""}
+                onChange={(e) => setNotasEditando({ ...notasEditando, portugues: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Estudos Sociais</label>
+              <input
+                type="text"
+                value={notasEditando.estudos_sociais || ""}
+                onChange={(e) => setNotasEditando({ ...notasEditando, estudos_sociais: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Ciências</label>
+              <input
+                type="text"
+                value={notasEditando.ciencias || ""}
+                onChange={(e) => setNotasEditando({ ...notasEditando, ciencias: e.target.value })}
+              />
+            </div>
+            <button onClick={salvarNotas}>Salvar</button>
+            <button onClick={() => setModalAberto(false)}>Fechar</button>
+          </div>
+        </div>
+      )}
+
+
+
     {modalVerNotasAberto && alunoSelecionado && (
       <div className={styles.modal}>
         <div className={styles.modalContent}>
@@ -641,20 +684,45 @@ return (
             onClick={async () => {
               try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
-                const notas = response.data.dados || [];
-                console.log("Notas do backend:", notas);
+                const notasLinhas = response.data.dados || [];
+                console.log("Notas do backend:", notasLinhas);
 
-                // ✅ Agrupar aqui, com as notas atualizadas
-                const notasPorAno = notas.reduce((acc, nota) => {
-                  const ano = nota.ano || "Sem Ano";
+                // Transforma cada linha (com várias disciplinas) em entradas por disciplina
+                const entradasPorDisciplina = [];
+                notasLinhas.forEach((linha) => {
+                  const ano = linha.ano_curso ?? linha.ano ?? "Sem Ano";
+                  if (linha.matematica !== undefined && linha.matematica !== null && linha.matematica !== "") {
+                    entradasPorDisciplina.push({ ano, disciplina_nome: "Matemática", nota: linha.matematica, status: "" });
+                  }
+                  if (linha.portugues !== undefined && linha.portugues !== null && linha.portugues !== "") {
+                    entradasPorDisciplina.push({ ano, disciplina_nome: "Português", nota: linha.portugues, status: "" });
+                  }
+                  if (linha.estudos_sociais !== undefined && linha.estudos_sociais !== null && linha.estudos_sociais !== "") {
+                    entradasPorDisciplina.push({ ano, disciplina_nome: "Estudos Sociais", nota: linha.estudos_sociais, status: "" });
+                  }
+                  if (linha.ciencias !== undefined && linha.ciencias !== null && linha.ciencias !== "") {
+                    entradasPorDisciplina.push({ ano, disciplina_nome: "Ciências", nota: linha.ciencias, status: "" });
+                  }
+                });
+
+                // Agrupa por ano no formato esperado pelo PDF
+                const notasPorAno = entradasPorDisciplina.reduce((acc, entrada) => {
+                  const ano = entrada.ano || "Sem Ano";
                   if (!acc[ano]) acc[ano] = [];
-                  acc[ano].push(nota);
+                  acc[ano].push({
+                    disciplina_nome: entrada.disciplina_nome,
+                    nota: entrada.nota,
+                    status: entrada.status,
+                  });
                   return acc;
                 }, {});
-                console.log("Notas agrupadas:", notasPorAno);
+                console.log("Notas agrupadas por ano:", notasPorAno);
 
                 const alunoComNotas = {
-                  nome: aluno.aluno_nome,
+                  aluno_nome: aluno.aluno_nome,
+                  id: aluno.id,
+                  notasPorAno,
+                  // Campos adicionais opcionais
                   matricula: aluno.matricula_primitiva,
                   ano: aluno.ano_curso,
                   dataNascimento: aluno.data_nascimento,
@@ -666,11 +734,10 @@ return (
                   telefone: aluno.telefone,
                   email: aluno.email,
                   observacao: aluno.observacao,
-  notas: notasDoAluno[aluno.id] || []                   
-              };
-                console.log("Objeto aluno com notas:", alunoComNotas);
+                };
+                console.log("Objeto aluno para PDF:", alunoComNotas);
 
-const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
+                const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 link.href = url;
