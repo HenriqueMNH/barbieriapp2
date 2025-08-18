@@ -666,12 +666,11 @@ return (
                   telefone: aluno.telefone,
                   email: aluno.email,
                   observacao: aluno.observacao,
-                  notasPorAno // ← este é o correto agora
-                  
+  notas: notasDoAluno[aluno.id] || []                   
               };
                 console.log("Objeto aluno com notas:", alunoComNotas);
 
-                const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
+const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 link.href = url;

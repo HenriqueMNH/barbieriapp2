@@ -1,109 +1,103 @@
+// components/pdf/BoletimPDF.jsx
 import React from "react";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    padding: 20,
     fontSize: 12,
-  },
-  section: {
-    marginBottom: 10,
+    fontFamily: "Helvetica",
   },
   title: {
     fontSize: 18,
-    marginBottom: 10,
     textAlign: "center",
+    marginBottom: 20,
   },
-  label: {
+  section: {
+    marginBottom: 15,
+  },
+  yearTitle: {
+    fontSize: 14,
+    marginBottom: 8,
     fontWeight: "bold",
+  },
+  table: {
+    display: "table",
+    width: "auto",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+  },
+  tableRow: {
+    flexDirection: "row",
+  },
+  tableCellHeader: {
+    margin: 5,
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  tableCell: {
+    margin: 5,
+    fontSize: 12,
   },
 });
 
-const BoletimPDF = ({ aluno }) => {
-console.log("Notas recebidas no BoletimPDF:", aluno.notasPorAno);
-
-
-  // Formatar matrícula (se for data ISO, extrai o ano)
-  let matriculaFormatada = aluno.matricula || "";
-  if (matriculaFormatada) {
-    const data = new Date(matriculaFormatada);
-    if (!isNaN(data)) {
-      matriculaFormatada = data.getFullYear().toString();
-    }
-  }
-
-  // Formatar datas para exibir no PDF
-  const formatDate = (data) => {
-    if (!data) return "";
-
-    if (typeof data === "string" && data.includes("T")) {
-      const [ano, mes, dia] = data.split("T")[0].split("-");
-      return `${dia}/${mes}/${ano}`;
-    }
-
-    const dt = new Date(data);
-    if (isNaN(dt)) return data;
-    return dt.toLocaleDateString("pt-BR");
-  };
-
-  // Normalizar notas para garantir que é array
-const notasPorAno = aluno.notasPorAno || {};
+export default function BoletimPDF({ aluno }) {
+  console.log("Dados recebidos no BoletimPDF:", aluno);
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page style={styles.page}>
         <Text style={styles.title}>Boletim Escolar</Text>
 
+        {/* Informações do aluno */}
         <View style={styles.section}>
-          <Text>Nome: {aluno.nome}</Text>
-          <Text>Matrícula: {matriculaFormatada}</Text>
-          <Text>Ano do Curso: {aluno.ano_curso || aluno.ano}</Text>
-          <Text>
-            Data de Nascimento:{" "}
-            {formatDate(aluno.data_nascimento || aluno.dataNascimento)}
-          </Text>
-          <Text>Cidade Natal: {aluno.cidade_natal || aluno.cidadeNatal}</Text>
-          <Text>Sexo: {aluno.sexo}</Text>
-          <Text>Religião: {aluno.religiao}</Text>
-          <Text>Profissão do Pai: {aluno.profissao_pai || aluno.profissaoPai}</Text>
-          <Text>
-            Nacionalidade do Pai:{" "}
-            {aluno.nacionalidade_pai || aluno.nacionalidadePai}
-          </Text>
-          <Text>Residência: {aluno.residencia}</Text>
-          <Text>Telefone: {aluno.telefone}</Text>
-          <Text>Email: {aluno.email}</Text>
-          <Text>Observações: {aluno.observacao}</Text>
+          <Text>Nome: {aluno.aluno_nome}</Text>
+          <Text>Matrícula: {aluno.id}</Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.label}>Notas por Ano:</Text>
-          {Object.keys(notasPorAno).length > 0 ? (
-            Object.entries(notasPorAno).map(([ano, notas]) => (
-              <View key={ano} style={{ marginBottom: 8 }}>
-                <Text style={{ fontWeight: "bold" }}>
-                  {ano === "Sem Ano" ? "Ano não especificado" : `Ano ${ano}`}:
-                </Text>
-                {notas.map((nota, idx) => (
-                  <Text key={idx}>
-                    {nota.materia || nota.materia_nome}: {nota.valor || nota.nota}
+        {/* Notas por ano */}
+        {aluno.notasPorAno && Object.keys(aluno.notasPorAno).length > 0 ? (
+          Object.entries(aluno.notasPorAno).map(([ano, notas]) => (
+            <View key={ano} style={styles.section}>
+              <Text style={styles.yearTitle}>{ano}º Ano</Text>
+
+              <View style={styles.table}>
+                {/* Cabeçalho */}
+                <View style={styles.tableRow}>
+                  <Text style={[styles.tableCellHeader, { width: "50%" }]}>
+                    Disciplina
                   </Text>
+                  <Text style={[styles.tableCellHeader, { width: "25%" }]}>
+                    Nota
+                  </Text>
+                  <Text style={[styles.tableCellHeader, { width: "25%" }]}>
+                    Status
+                  </Text>
+                </View>
+
+                {/* Linhas de notas */}
+                {notas.map((nota, idx) => (
+                  <View key={idx} style={styles.tableRow}>
+                    <Text style={[styles.tableCell, { width: "50%" }]}>
+                      {nota.disciplina_nome}
+                    </Text>
+                    <Text style={[styles.tableCell, { width: "25%" }]}>
+                      {nota.nota}
+                    </Text>
+                    <Text style={[styles.tableCell, { width: "25%" }]}>
+                      {nota.status || ""}
+                    </Text>
+                  </View>
                 ))}
               </View>
-            ))
-          ) : (
-            <Text>Sem notas disponíveis.</Text>
-          )}
-        </View>
+            </View>
+          ))
+        ) : (
+          <Text>Nenhuma nota encontrada.</Text>
+        )}
       </Page>
     </Document>
   );
-};
-
-export default BoletimPDF;
+}
