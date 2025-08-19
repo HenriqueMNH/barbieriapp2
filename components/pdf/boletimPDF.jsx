@@ -43,6 +43,20 @@ const styles = StyleSheet.create({
   },
 });
 
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  } catch {
+    return dateString; // fallback
+  }
+};
+
+
 export default function BoletimPDF({ aluno }) {
   console.log("Dados recebidos no BoletimPDF:", aluno);
 
@@ -53,23 +67,33 @@ export default function BoletimPDF({ aluno }) {
 
         {/* Informações do aluno */}
         <View style={styles.section}>
-          <Text>Nome: {aluno.aluno_nome}</Text>
-          {aluno.id !== undefined && aluno.id !== null ? (
-            <Text>ID: {aluno.id}</Text>
-          ) : null}
-          {aluno.matricula ? <Text>Matrícula: {aluno.matricula}</Text> : null}
-          {aluno.ano ? <Text>Ano do Curso: {aluno.ano}</Text> : null}
-          {aluno.dataNascimento ? <Text>Data de Nascimento: {aluno.dataNascimento}</Text> : null}
-          {aluno.cidadeNatal ? <Text>Cidade Natal: {aluno.cidadeNatal}</Text> : null}
-          {aluno.sexo ? <Text>Sexo: {aluno.sexo}</Text> : null}
-          {aluno.religiao ? <Text>Religião: {aluno.religiao}</Text> : null}
-          {aluno.profissaoPai ? <Text>Profissão do Pai: {aluno.profissaoPai}</Text> : null}
-          {aluno.nacionalidadePai ? <Text>Nacionalidade do Pai: {aluno.nacionalidadePai}</Text> : null}
-          {aluno.telefone ? <Text>Telefone: {aluno.telefone}</Text> : null}
-          {aluno.email ? <Text>Email: {aluno.email}</Text> : null}
-          {aluno.observacao ? <Text>Observação: {aluno.observacao}</Text> : null}
-        </View>
+  <Text>Nome: {aluno.aluno_nome}</Text>
+  {aluno.id !== undefined && aluno.id !== null ? (
+    <Text>ID: {aluno.id}</Text>
+  ) : null}
+{aluno.matricula ? (
+  <Text>Matrícula: {formatDate(aluno.matricula)}</Text>
+) : null}
+  {aluno.ano ? <Text>Ano do Curso: {aluno.ano}</Text> : null}
+  {aluno.matricula ? (
+  <Text>Matrícula Primitiva: {formatDate(aluno.matricula)}</Text>
+) : null}
+{aluno.matriculaAnoLetivo ? (
+  <Text>Matrícula Ano Letivo: {formatDate(aluno.matriculaAnoLetivo)}</Text>
+) : null}
 
+  {aluno.dataNascimento ? (
+  <Text>Data de Nascimento: {formatDate(aluno.dataNascimento)}</Text>
+) : null}
+  {aluno.cidadeNatal ? <Text>Cidade Natal: {aluno.cidadeNatal}</Text> : null}
+  {aluno.sexo ? <Text>Sexo: {aluno.sexo}</Text> : null}
+  {aluno.religiao ? <Text>Religião: {aluno.religiao}</Text> : null}
+  {aluno.profissaoPai ? <Text>Profissão do Pai: {aluno.profissaoPai}</Text> : null}
+  {aluno.nacionalidadePai ? <Text>Nacionalidade do Pai: {aluno.nacionalidadePai}</Text> : null}
+  {aluno.telefone ? <Text>Telefone: {aluno.telefone}</Text> : null}
+  {aluno.email ? <Text>Email: {aluno.email}</Text> : null}
+  {aluno.observacao ? <Text>Observação: {aluno.observacao}</Text> : null}
+</View>
         {/* Notas por ano */}
         {aluno.notasPorAno && Object.keys(aluno.notasPorAno).length > 0 ? (
           Object.entries(aluno.notasPorAno).map(([ano, notas]) => (

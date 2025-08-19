@@ -680,78 +680,105 @@ return (
         <td>
           {aluno.aluno_nome}
           <button
-            className={styles.pdfButton}
-            onClick={async () => {
-              try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
-                const notasLinhas = response.data.dados || [];
-                console.log("Notas do backend:", notasLinhas);
+  className={styles.pdfButton}
+  onClick={async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`
+      );
 
-                // Transforma cada linha (com várias disciplinas) em entradas por disciplina
-                const entradasPorDisciplina = [];
-                notasLinhas.forEach((linha) => {
-                  const ano = linha.ano_curso ?? linha.ano ?? "Sem Ano";
-                  if (linha.matematica !== undefined && linha.matematica !== null && linha.matematica !== "") {
-                    entradasPorDisciplina.push({ ano, disciplina_nome: "Matemática", nota: linha.matematica, status: "" });
-                  }
-                  if (linha.portugues !== undefined && linha.portugues !== null && linha.portugues !== "") {
-                    entradasPorDisciplina.push({ ano, disciplina_nome: "Português", nota: linha.portugues, status: "" });
-                  }
-                  if (linha.estudos_sociais !== undefined && linha.estudos_sociais !== null && linha.estudos_sociais !== "") {
-                    entradasPorDisciplina.push({ ano, disciplina_nome: "Estudos Sociais", nota: linha.estudos_sociais, status: "" });
-                  }
-                  if (linha.ciencias !== undefined && linha.ciencias !== null && linha.ciencias !== "") {
-                    entradasPorDisciplina.push({ ano, disciplina_nome: "Ciências", nota: linha.ciencias, status: "" });
-                  }
-                });
+      const notasLinhas = response.data?.dados || [];
+      console.log("Notas do backend:", notasLinhas);
 
-                // Agrupa por ano no formato esperado pelo PDF
-                const notasPorAno = entradasPorDisciplina.reduce((acc, entrada) => {
-                  const ano = entrada.ano || "Sem Ano";
-                  if (!acc[ano]) acc[ano] = [];
-                  acc[ano].push({
-                    disciplina_nome: entrada.disciplina_nome,
-                    nota: entrada.nota,
-                    status: entrada.status,
-                  });
-                  return acc;
-                }, {});
-                console.log("Notas agrupadas por ano:", notasPorAno);
+      // Transforma cada linha (com várias disciplinas) em entradas por disciplina
+      const entradasPorDisciplina = [];
+      notasLinhas.forEach((linha) => {
+        const ano = linha.ano_curso ?? linha.ano ?? "Sem Ano";
+        if (linha.matematica) entradasPorDisciplina.push({ ano, disciplina_nome: "Matemática", nota: linha.matematica, status: "" });
+        if (linha.portugues) entradasPorDisciplina.push({ ano, disciplina_nome: "Português", nota: linha.portugues, status: "" });
+        if (linha.estudos_sociais) entradasPorDisciplina.push({ ano, disciplina_nome: "Estudos Sociais", nota: linha.estudos_sociais, status: "" });
+        if (linha.ciencias) entradasPorDisciplina.push({ ano, disciplina_nome: "Ciências", nota: linha.ciencias, status: "" });
+      });
 
-                const alunoComNotas = {
-                  aluno_nome: aluno.aluno_nome,
-                  id: aluno.id,
-                  notasPorAno,
-                  // Campos adicionais opcionais
-                  matricula: aluno.matricula_primitiva,
-                  ano: aluno.ano_curso,
-                  dataNascimento: aluno.data_nascimento,
-                  cidadeNatal: aluno.cidade_natal,
-                  sexo: aluno.sexo,
-                  religiao: aluno.religiao,
-                  profissaoPai: aluno.profissao_pai,
-                  nacionalidadePai: aluno.nacionalidade_pai,
-                  telefone: aluno.telefone,
-                  email: aluno.email,
-                  observacao: aluno.observacao,
-                };
-                console.log("Objeto aluno para PDF:", alunoComNotas);
+      // Agrupa por ano no formato esperado pelo PDF
+      const notasPorAno = entradasPorDisciplina.reduce((acc, entrada) => {
+        const ano = entrada.ano || "Sem Ano";
+        if (!acc[ano]) acc[ano] = [];
+        acc[ano].push({
+          disciplina_nome: entrada.disciplina_nome,
+          nota: entrada.nota,
+          status: entrada.status,
+        });
+        return acc;
+      }, {});
+      console.log("Notas agrupadas por ano:", notasPorAno);
 
-                const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = `boletim-${aluno.aluno_nome}.pdf`;
-                link.click();
-                URL.revokeObjectURL(url);
-              } catch (err) {
-                console.error("Erro ao gerar PDF:", err);
-                alert("Erro ao gerar PDF. Tente novamente.");
-              }
-            }}
-          >
-            Gerar PDF
-          </button>
+      const alunoComNotas = {
+        aluno_nome: aluno.aluno_nome,
+        id: aluno.id,
+        notasPorAno,
+        matricula: aluno.matricula_primitiva,
+        ano: aluno.ano_curso,
+        dataNascimento: aluno.data_nascimento,
+        cidadeNatal: aluno.cidade_natal,
+        sexo: aluno.sexo,
+        religiao: aluno.religiao,
+        profissaoPai: aluno.profissao_pai,
+        nacionalidadePai: aluno.nacionalidade_pai,
+        telefone: aluno.telefone,
+        email: aluno.email,
+        observacao: aluno.observacao,
+      };
+      console.log("Objeto aluno para PDF:", alunoComNotas);
+
+      const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `boletim-${aluno.aluno_nome}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      // Tratar aluno sem notas (404)
+      if (err.response?.status === 404) {
+        console.warn("Nenhuma nota encontrada para este aluno.");
+
+        const alunoComNotas = {
+          aluno_nome: aluno.aluno_nome,
+          id: aluno.id,
+          notasPorAno: {}, // vazio
+          matricula: aluno.matricula_primitiva,
+          ano: aluno.ano_curso,
+          dataNascimento: aluno.data_nascimento,
+          cidadeNatal: aluno.cidade_natal,
+          sexo: aluno.sexo,
+          religiao: aluno.religiao,
+          profissaoPai: aluno.profissao_pai,
+          nacionalidadePai: aluno.nacionalidade_pai,
+          telefone: aluno.telefone,
+          email: aluno.email,
+          observacao: aluno.observacao,
+        };
+
+        const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `boletim-${aluno.aluno_nome}.pdf`;
+        link.click();
+        URL.revokeObjectURL(url);
+
+        return;
+      }
+
+      console.error("Erro ao gerar PDF:", err);
+      alert("Erro ao gerar PDF. Tente novamente.");
+    }
+  }}
+>
+  Gerar PDF
+</button>
           <button onClick={() => toggleExpandir(aluno.id)}>
             {alunoExpandidoId === aluno.id ? "▲" : "▼"}
           </button>
