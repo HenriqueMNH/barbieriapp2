@@ -153,28 +153,45 @@ const todosSelecionados = alunosFiltrados.length > 0 && alunosFiltrados.every(al
 
 
 const verNotas = async (aluno) => {
+  if (!aluno || !aluno.id) {
+    console.error("Aluno inválido:", aluno);
+    alert("Erro: Aluno inválido");
+    return;
+  }
+  
+  console.log("=== VER NOTAS ===");
+  console.log("Aluno:", aluno);
+  console.log("ID do aluno:", aluno.id);
+  console.log("URL da API:", `${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+  
   setAlunoSelecionado(aluno);
-    setModalVerNotasAberto(true);
-  setNotas([]); // limpa as notas anteriores
-
+  setModalVerNotasAberto(true);
+  
+  // Busca as notas mais recentes do aluno
   try {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+    console.log("Resposta da API:", response.data);
 
     if (response.data.sucesso) {
       const notasRecebidas = response.data.dados || [];
-      setNotas(notasRecebidas); // Mesmo que vazio, funciona
+      console.log("Notas encontradas:", notasRecebidas);
+      // Atualiza o estado notasDoAluno para este aluno específico
+      setNotasDoAluno(prev => ({ ...prev, [aluno.id]: notasRecebidas }));
     }
   } catch (erro) {
+    console.error("Erro completo:", erro);
+    console.error("Status:", erro.response?.status);
+    console.error("URL que falhou:", erro.config?.url);
+    
     // Se der erro 404, assume que não tem notas ainda
     if (erro.response && erro.response.status === 404) {
       console.log("Aluno ainda sem notas cadastradas.");
-      setNotas([]); // Mantém o array vazio
+      setNotasDoAluno(prev => ({ ...prev, [aluno.id]: [] }));
     } else {
       console.error("Erro ao buscar notas:", erro);
+      setNotasDoAluno(prev => ({ ...prev, [aluno.id]: [] }));
     }
   }
-
-  setModalVerNotasAberto(true); // Abre o modal independentemente
 };
 
   const formatarData = (data) => { //Isso serve para deixar a data mas bonita e se livrar das outras informações, deixando apenas o dia/mês/ano para ver
@@ -243,28 +260,10 @@ const verNotas = async (aluno) => {
 
   };
 
-  const buscarNotasDoAluno = async (alunoId) => {
-  try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${alunoId}`);
-    if (response.data.sucesso) {
-      const notasAluno = response.data.dados || [];
-      setNotasDoAluno(prev => ({ ...prev, [alunoId]: notasAluno }));
-    }
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      // Nenhuma nota encontrada para esse aluno
-      setNotasDoAluno(prev => ({ ...prev, [alunoId]: [] }));
-    } else {
-      console.error("Erro ao buscar notas do aluno:", error);
-    }
-  }
-};
 
-useEffect(() => {
-  alunos.forEach(aluno => {
-    buscarNotasDoAluno(aluno.id);
-  });
-}, [alunos]);
+
+// Removendo o useEffect que carrega notas para todos os alunos automaticamente
+// As notas serão carregadas apenas quando necessário (ao abrir o modal "Ver Notas")
 
 
 
@@ -278,8 +277,18 @@ useEffect(() => {
       await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/notas/${alunoSelecionado.id}`, notasEditando);
       alert("Notas editadas com sucesso!");
 
+      // Atualiza as notas no estado notasDoAluno para refletir as mudanças
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${alunoSelecionado.id}`);
+        if (response.data.sucesso) {
+          const notasRecebidas = response.data.dados || [];
+          setNotasDoAluno(prev => ({ ...prev, [alunoSelecionado.id]: notasRecebidas }));
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar notas após salvar:", error);
+      }
+
       setModalAberto(false);
-      buscarNotas(alunoSelecionado);
     } catch (error) {
       console.error("Erro ao salvar notas:", error);
       alert("Erro ao salvar as notas.");
@@ -414,23 +423,53 @@ return (
     {modalVerNotasAberto && alunoSelecionado && (
       <div className={styles.modal}>
         <div className={styles.modalContent}>
-          {/* Modal de ver notas */}
-      <h2>Notas de {alunoSelecionado.aluno_nome}</h2>
-      {notasDoAluno[alunoSelecionado.id] && notasDoAluno[alunoSelecionado.id].length > 0 ? (
-            <ul>
-          {notasDoAluno[alunoSelecionado.id].map((nota, index) => (
-                <li key={index}>
-                  <strong>Matemática:</strong> {nota.matematica} <br />
-                  <strong>Português:</strong> {nota.portugues} <br />
-                  <strong>Estudos Sociais:</strong> {nota.estudos_sociais} <br />
-                  <strong>Ciências:</strong> {nota.ciencias} <br />
-                </li>
+          <h2>Notas de {alunoSelecionado.aluno_nome}</h2>
+
+          {notasDoAluno[alunoSelecionado.id] && notasDoAluno[alunoSelecionado.id].length > 0 ? (
+            <div>
+              {notasDoAluno[alunoSelecionado.id].map((nota, index) => (
+                <div key={index} style={{ 
+                  border: '1px solid #ddd', 
+                  padding: '15px', 
+                  margin: '10px 0', 
+                  borderRadius: '5px',
+                  backgroundColor: '#f9f9f9'
+                }}>
+                  <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>
+                    {nota.ano_curso ? `${nota.ano_curso}º Ano` : 'Ano não especificado'}
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div><strong>Matemática:</strong> {nota.matematica || 'N/A'}</div>
+                    <div><strong>Português:</strong> {nota.portugues || 'N/A'}</div>
+                    <div><strong>Estudos Sociais:</strong> {nota.estudos_sociais || 'N/A'}</div>
+                    <div><strong>Ciências:</strong> {nota.ciencias || 'N/A'}</div>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p>Nenhuma nota cadastrada para este aluno.</p>
           )}
-          <button onClick={() => setModalVerNotasAberto(false)}>Fechar</button>
+          <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            <button 
+              onClick={async () => {
+                // Refresh notes for this student
+                try {
+                  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${alunoSelecionado.id}`);
+                  if (response.data.sucesso) {
+                    const notasRecebidas = response.data.dados || [];
+                    setNotasDoAluno(prev => ({ ...prev, [alunoSelecionado.id]: notasRecebidas }));
+                  }
+                } catch (error) {
+                  console.error("Erro ao atualizar notas:", error);
+                }
+              }}
+              style={{ backgroundColor: '#4CAF50', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              🔄 Atualizar
+            </button>
+            <button onClick={() => setModalVerNotasAberto(false)}>Fechar</button>
+          </div>
         </div>
       </div>
     )}

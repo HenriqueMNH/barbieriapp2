@@ -62,6 +62,7 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
     setCiencias("");
     setAnosPreenchidos([]);
     setFormularioNotas(false);
+    setTelaAtual("menu");
   };
 
 
@@ -73,32 +74,40 @@ const handleSalvarAno = async (e) => {
     return;
   }
 
-  // Prepara dados do aluno
-  const alunoData = {
-    aluno_nome: nome,
-    data_nascimento: dataNascimento,
-    cidade_natal: cidadeNatal,
-    nome_pai: nomePai,
-    nome_mae: nomeMae,
-    profissao_pai: profissaoPai,
-    nacionalidade_pai: nacionalidadePai,
-    residencia: residencia,
-    matricula_primitiva: matriculaPrimitiva,
-    matricula_ano_letivo: matriculaAnoLetivo,
-    ano_curso: anoSelecionado,
-    sexo: sexo,
-    observacao: observacao,
-    eliminacao_data: eliminacaoData || null,
-    eliminacao_causa: eliminacaoCausa,
-    religiao: religiao,
-  };
-
   try {
-    // Cria novo aluno
-    const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
-    const novoAlunoId = alunoResponse.data.dados.id;
+    // SEMPRE cria um NOVO aluno para cada ano (nunca reutiliza)
+    const alunoData = {
+      aluno_nome: nome,
+      data_nascimento: dataNascimento,
+      cidade_natal: cidadeNatal,
+      nome_pai: nomePai,
+      nome_mae: nomeMae,
+      profissao_pai: profissaoPai,
+      nacionalidade_pai: nacionalidadePai,
+      residencia: residencia,
+      matricula_primitiva: matriculaPrimitiva,
+      matricula_ano_letivo: matriculaAnoLetivo,
+      ano_curso: anoSelecionado, // Ano específico para este aluno
+      sexo: sexo,
+      observacao: observacao,
+      eliminacao_data: eliminacaoData || null,
+      eliminacao_causa: eliminacaoCausa,
+      religiao: religiao,
+    };
 
-    // Cadastra as notas para esse novo aluno
+    console.log("Criando NOVO aluno para o ano:", anoSelecionado);
+    console.log("Dados do aluno:", alunoData);
+    console.log("URL da API alunos:", `${process.env.NEXT_PUBLIC_API_URL}/alunos`);
+
+    // Cria um novo aluno para este ano
+    const alunoResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/alunos`, alunoData);
+    console.log("Resposta da criação do aluno:", alunoResponse.data);
+    
+    // A API retorna dados diretamente como ID, não como objeto
+    const novoAlunoId = alunoResponse.data.dados;
+    console.log("Novo aluno criado com ID:", novoAlunoId, "para o ano:", anoSelecionado);
+
+    // Cadastra as notas para o novo aluno
     const dadosDoAno = {
       ano_curso: anoSelecionado,
       aluno_id: novoAlunoId,
@@ -108,21 +117,35 @@ const handleSalvarAno = async (e) => {
       ciencias,
     };
 
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, dadosDoAno);
+    console.log("=== SALVANDO NOTAS ===");
+    console.log("Dados das notas:", dadosDoAno);
+    console.log("URL da API:", `${process.env.NEXT_PUBLIC_API_URL}/notas`);
+
+    const notasResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/notas`, dadosDoAno);
+    console.log("Resposta ao salvar notas:", notasResponse.data);
+    
+    alert(`Aluno do ${anoSelecionado}º ano criado com sucesso!`);
 
     const continuar = window.confirm("Deseja adicionar notas de outro ano para este mesmo aluno?");
 
     if (continuar) {
       // Limpa apenas as notas e o ano, mas mantém os dados pessoais
+      // O alunoId é resetado para que um novo aluno seja criado na próxima vez
+      setAlunoId(null);
       setAnoSelecionado("");
       setMatematica("");
       setPortugues("");
       setEstudosSociais("");
       setCiencias("");
+      
+      // GARANTE que o formulário de notas continue visível
+      setFormularioNotas(true);
+      
+      console.log("Formulário limpo para próximo ano. Dados pessoais mantidos. Formulário de notas visível.");
     } else {
-      // Limpa tudo
+      // Limpa tudo e volta para o menu
       resetarFormulario();
-      setTelaAtual("aluno");
+      setTelaAtual("menu");
     }
 
   } catch (error) {
@@ -302,21 +325,21 @@ onClick={async () => {
   setResidencia(dados.residencia || "");
   setMatriculaPrimitiva(dados.matricula_primitiva || "");
   setMatriculaAnoLetivo(dados.matricula_ano_letivo || "");
-  setAnoSelecionado(dados.ano_curso || "");
+  setAnoSelecionado(""); // Reset ano para permitir escolha
   setSexo(dados.sexo || "");
   setObservacao(dados.observacao || "");
   setEliminacaoData(dados.eliminacao_data || "");
   setEliminacaoCausa(dados.eliminacao_causa || "");
   setReligiao(dados.religiao || "");
-  setAlunoId(dados.id);
-const resNotas = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${dados.id}`);
-const notasPorAno = resNotas.data.dados; // supondo que venha um array com ano_curso + notas
-
-setAnosPreenchidos(notasPorAno); // Isso vai evitar duplicação nos <select disabled={...}>
-
+  // NÃO seta o alunoId quando selecionar sugestão - queremos criar um novo registro
+  setAlunoId(null);
+  
+  // Não busca notas existentes - sempre cria um novo registro
+  setAnosPreenchidos([]);
 
   setSugestoes([]);
   setSelecionouSugestao(true);
+  setFormularioNotas(true); // Vai direto para o formulário de notas
 }}
 
 
