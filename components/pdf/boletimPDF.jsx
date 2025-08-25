@@ -98,7 +98,9 @@ export default function BoletimPDF({ aluno }) {
         {aluno.notasPorAno && Object.keys(aluno.notasPorAno).length > 0 ? (
           Object.entries(aluno.notasPorAno).map(([ano, notas]) => (
             <View key={ano} style={styles.section}>
-              <Text style={styles.yearTitle}>{ano}º Ano</Text>
+<Text style={styles.yearTitle}>
+  {isNaN(Number(ano)) ? ano : `${ano}º Ano`}
+</Text>
 
               <View style={styles.table}>
                 {/* Cabeçalho */}

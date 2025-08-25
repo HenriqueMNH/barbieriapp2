@@ -6,6 +6,7 @@ import axios from "axios";
 import styles from "./page.module.css";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import BoletimPDF from '../../../components/pdf/boletimPDF';
+import BoletimSelecionadosPDF from '../../../components/pdf/boletimSelecionadosPDF';
 import { pdf } from '@react-pdf/renderer';
 
 
@@ -33,7 +34,8 @@ export default function ListaAlunos() {
     matematica: "",
     portugues: "",
     estudos_sociais: "",
-    ciencias: ""
+    ciencias: "",
+    ano_curso: ""
   });
 
   const [modalEditarAlunoAberto, setModalEditarAlunoAberto] = useState(false);
@@ -216,6 +218,7 @@ const verNotas = async (aluno) => {
           portugues: nota.portugues,
           estudos_sociais: nota.estudos_sociais,
           ciencias: nota.ciencias,
+          ano_curso: nota.ano_curso
         });
       } else {
         // Inicializa com campos vazios para permitir criação de novas notas
@@ -224,6 +227,7 @@ const verNotas = async (aluno) => {
           portugues: "",
           estudos_sociais: "",
           ciencias: "",
+          ano_curso: aluno.ano_curso || "",
         });
       }
 
@@ -249,6 +253,7 @@ const verNotas = async (aluno) => {
           portugues: "",
           estudos_sociais: "",
           ciencias: "",
+          ano_curso: aluno.ano_curso || "",
         });
       }
 
@@ -650,6 +655,80 @@ return (
         onChange={handleFiltroChange}
       />
       <button onClick={resetarFiltros}>Resetar Filtros</button>
+      {/* Novo botão: gera PDF com todos os alunos selecionados */}
+      <button
+  className={styles.pdfButton}
+  onClick={async () => {
+    try {
+      // Filtra apenas alunos com ID definido
+      const alunosValidos = alunosSelecionados.filter(
+        (aluno) => aluno.id !== undefined && aluno.id !== null
+      );
+
+      // Mapeia todos os alunos válidos e pega suas notas
+      const alunosComNotas = await Promise.all(
+        alunosValidos.map(async (aluno) => {
+          try {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+            const notasLinhas = response.data?.dados || [];
+
+            // Transforma cada linha (com várias disciplinas) em entradas por disciplina
+            const entradasPorDisciplina = [];
+            notasLinhas.forEach((linha) => {
+              const ano = linha.ano_curso ?? linha.ano ?? aluno.ano_curso ?? "Ano não informado";
+              if (linha.matematica) entradasPorDisciplina.push({ ano, disciplina_nome: "Matemática", nota: linha.matematica, status: "" });
+              if (linha.portugues) entradasPorDisciplina.push({ ano, disciplina_nome: "Português", nota: linha.portugues, status: "" });
+              if (linha.estudos_sociais) entradasPorDisciplina.push({ ano, disciplina_nome: "Estudos Sociais", nota: linha.estudos_sociais, status: "" });
+              if (linha.ciencias) entradasPorDisciplina.push({ ano, disciplina_nome: "Ciências", nota: linha.ciencias, status: "" });
+            });
+
+            // Agrupa por ano
+            const notasPorAno = entradasPorDisciplina.reduce((acc, entrada) => {
+              const ano = entrada.ano || "Sem Ano";
+              if (!acc[ano]) acc[ano] = [];
+              acc[ano].push({
+                disciplina_nome: entrada.disciplina_nome,
+                nota: entrada.nota,
+                status: entrada.status,
+              });
+              return acc;
+            }, {});
+
+            return {
+              aluno_nome: aluno.aluno_nome,
+              id: aluno.id,
+              notasPorAno,
+            };
+          } catch (err) {
+            // Caso o aluno não tenha notas (404)
+            return {
+              aluno_nome: aluno.aluno_nome,
+              id: aluno.id,
+              notasPorAno: {},
+            };
+          }
+        })
+      );
+
+      // Gera PDF apenas com notas dos alunos selecionados
+      const blob = await pdf(<BoletimSelecionadosPDF alunos={alunosComNotas} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `boletim_selecionados.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Erro ao gerar PDF de selecionados:", err);
+      alert("Erro ao gerar PDF dos alunos selecionados. Tente novamente.");
+    }
+  }}
+>
+  Gerar PDF Selecionados
+</button>
+
+
 
       {alunosSelecionados.length > 0 && (
         <button
@@ -732,7 +811,7 @@ return (
       // Transforma cada linha (com várias disciplinas) em entradas por disciplina
       const entradasPorDisciplina = [];
       notasLinhas.forEach((linha) => {
-        const ano = linha.ano_curso ?? linha.ano ?? "Sem Ano";
+        const ano = linha.ano_curso ?? linha.ano ?? aluno.ano_curso ?? "Ano não informado";
         if (linha.matematica) entradasPorDisciplina.push({ ano, disciplina_nome: "Matemática", nota: linha.matematica, status: "" });
         if (linha.portugues) entradasPorDisciplina.push({ ano, disciplina_nome: "Português", nota: linha.portugues, status: "" });
         if (linha.estudos_sociais) entradasPorDisciplina.push({ ano, disciplina_nome: "Estudos Sociais", nota: linha.estudos_sociais, status: "" });
@@ -818,6 +897,7 @@ return (
 >
   Gerar PDF
 </button>
+
           <button onClick={() => toggleExpandir(aluno.id)}>
             {alunoExpandidoId === aluno.id ? "▲" : "▼"}
           </button>
