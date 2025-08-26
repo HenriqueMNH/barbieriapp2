@@ -654,17 +654,18 @@ return (
         value={filtros.sexo}
         onChange={handleFiltroChange}
       />
-      <button onClick={resetarFiltros}>Resetar Filtros</button>
+       <button onClick={resetarFiltros}>Resetar Filtros</button>
       {/* Novo botão: gera PDF com todos os alunos selecionados */}
       <button
-  className={styles.pdfButton}
-  onClick={async () => {
-    try {
-      // Filtra apenas alunos com ID definido
-      const alunosValidos = alunosSelecionados.filter(
-        (aluno) => aluno.id !== undefined && aluno.id !== null
-      );
+className={styles.pdfButton}
+onClick={async () => {
+  try {
+    const alunosValidos = alunos.filter((a) => alunosSelecionados.includes(a.id));
 
+    if (alunosValidos.length === 0) {
+      alert("Selecione ao menos um aluno");
+      return;
+    }
       // Mapeia todos os alunos válidos e pega suas notas
       const alunosComNotas = await Promise.all(
         alunosValidos.map(async (aluno) => {
