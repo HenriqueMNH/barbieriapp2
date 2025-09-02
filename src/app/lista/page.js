@@ -1004,7 +1004,7 @@ onClick={async () => {
         <p>Nenhum aluno encontrado com os filtros aplicados.</p>
       )
     ) : (
-      <p>Insira filtros para buscar alunos.</p>
+      <p></p>
     )}
   </div>
 )};
