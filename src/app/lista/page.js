@@ -941,56 +941,68 @@ onClick={async () => {
                       <td colSpan={18}>
                         <div
                           style={{
-                            background: "#f9f9f9",
-                            padding: "10px",
-                            borderRadius: "5px",
+                            background: "#fff",
+                            padding: "24px",
+                            borderRadius: "12px",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                            margin: "16px 0",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "32px",
                           }}
                         >
-                          <strong>Informações Adicionais:</strong>
-                          <br />
-                          Religião: {aluno.religiao}
-                          <br />
-                          Profissão do Pai: {aluno.profissao_pai}
-                          <br />
-                          Nacionalidade do Pai: {aluno.nacionalidade_pai}
-                          <br />
-                          Telefone: {aluno.telefone}
-                          <br />
-                          Email: {aluno.email}
-                          <br />
-                          Observação: {aluno.observacao}
-                          <br />
-                          <hr />
-                          {(() => {
-  // Filtra notas do aluno atual que possuem ano definido
-  const notasAlunoFiltradas = notas.filter(nota => nota.aluno_id === aluno.id && nota.ano);
+                          <div style={{ minWidth: 220, flex: 1 }}>
+                            <h3 style={{ margin: "0 0 12px 0", color: "#1976d2", fontWeight: 600, fontSize: 18 }}>
+                              📋 Informações Adicionais
+                            </h3>
+                            <div style={{ lineHeight: 2, fontSize: 15 }}>
+                              <span>🙏 <strong>Religião:</strong> {aluno.religiao || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>👨‍🔧 <strong>Profissão do Pai:</strong> {aluno.profissao_pai || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>🌎 <strong>Nacionalidade do Pai:</strong> {aluno.nacionalidade_pai || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>📞 <strong>Telefone:</strong> {aluno.telefone || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>✉️ <strong>Email:</strong> {aluno.email || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>📝 <strong>Observação:</strong> {aluno.observacao || <span style={{ color: "#aaa" }}>Nenhuma</span>}</span>
+                            </div>
+                          </div>
+                          <div style={{ minWidth: 220, flex: 1 }}>
+                            <h4 style={{ margin: "0 0 10px 0", color: "#388e3c", fontWeight: 500 }}>
+                              📚 Notas por Ano
+                            </h4>
+                            <div>
+                              {(() => {
+                                // Filtra notas do aluno atual que possuem ano definido
+                                const notasAlunoFiltradas = notas.filter(nota => nota.aluno_id === aluno.id && nota.ano);
 
-  // Agrupa as notas por ano
-  const notasAgrupadasPorAno = notasAlunoFiltradas.reduce((acc, nota) => {
-    const ano = nota.ano;
-    if (!acc[ano]) acc[ano] = [];
-    acc[ano].push(nota);
-    return acc;
-  }, {});
+                                // Agrupa as notas por ano
+                                const notasAgrupadasPorAno = notasAlunoFiltradas.reduce((acc, nota) => {
+                                  const ano = nota.ano;
+                                  if (!acc[ano]) acc[ano] = [];
+                                  acc[ano].push(nota);
+                                  return acc;
+                                }, {});
 
-  const anosOrdenados = Object.keys(notasAgrupadasPorAno).sort();
+                                const anosOrdenados = Object.keys(notasAgrupadasPorAno).sort();
 
-  if (anosOrdenados.length === 0) return null;
+                                if (anosOrdenados.length === 0)
+                                  return <span style={{ color: "#aaa" }}>Nenhuma nota registrada.</span>;
 
-  return anosOrdenados.map((ano) => (
-    <div key={ano} style={{ marginBottom: "10px" }}>
-      <strong>Ano {ano}:</strong>
-      <ul style={{ marginTop: "5px", marginBottom: "5px" }}>
-        {notasAgrupadasPorAno[ano].map((nota, idx) => (
-          <li key={idx}>
-            {nota.materia || nota.materia_nome}: {nota.valor || nota.nota}
-          </li>
-        ))}
-      </ul>
-    </div>
-  ));
-})()}
-
+                                return anosOrdenados.map((ano) => (
+                                  <div key={ano} style={{ marginBottom: "10px" }}>
+                                    <strong style={{ color: "#1976d2" }}>Ano {ano}:</strong>
+                                    <ul style={{ margin: "5px 0 10px 18px", padding: 0 }}>
+                                      {notasAgrupadasPorAno[ano].map((nota, idx) => (
+                                        <li key={idx} style={{ marginBottom: 2 }}>
+                                          <span style={{ color: "#555" }}>
+                                            {nota.materia || nota.materia_nome}: <strong>{nota.valor || nota.nota}</strong>
+                                          </span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ));
+                              })()}
+                            </div>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -1007,4 +1019,4 @@ onClick={async () => {
       <p></p>
     )}
   </div>
-)};
+)}
