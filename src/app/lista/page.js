@@ -610,151 +610,217 @@ return (
       )}
 
 
-    <div className={styles.filtros}>
-      {/* Seus inputs de filtro */}
-      <input
-        type="text"
-        name="nome"
-        placeholder="Nome"
-        value={filtros.nome}
-        onChange={handleFiltroChange}
-      />
-      <input
-        type="text"
-        name="ano"
-        placeholder="Ano"
-        value={filtros.ano}
-        onChange={handleFiltroChange}
-      />
-      <input
-        type="text"
-        name="anoEstudo"
-        placeholder="Ano de Estudo"
-        value={filtros.anoEstudo}
-        onChange={handleFiltroChange}
-      />
-      <input
-        type="text"
-        name="serie"
-        placeholder="Série"
-        value={filtros.serie}
-        onChange={handleFiltroChange}
-      />
-      <input
-        type="text"
-        name="periodo"
-        placeholder="Período"
-        value={filtros.periodo}
-        onChange={handleFiltroChange}
-      />
-      <input
-        type="text"
-        name="sexo"
-        placeholder="Sexo"
-        value={filtros.sexo}
-        onChange={handleFiltroChange}
-      />
-       <button onClick={resetarFiltros}>Resetar Filtros</button>
-      {/* Novo botão: gera PDF com todos os alunos selecionados */}
-      <button
-className={styles.pdfButton}
-onClick={async () => {
-  try {
-    const alunosValidos = alunos.filter((a) => alunosSelecionados.includes(a.id));
-
-    if (alunosValidos.length === 0) {
-      alert("Selecione ao menos um aluno");
-      return;
-    }
-      // Mapeia todos os alunos válidos e pega suas notas
-      const alunosComNotas = await Promise.all(
-        alunosValidos.map(async (aluno) => {
-          try {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
-            const notasLinhas = response.data?.dados || [];
-
-            // Transforma cada linha (com várias disciplinas) em entradas por disciplina
-            const entradasPorDisciplina = [];
-            notasLinhas.forEach((linha) => {
-              const ano = linha.ano_curso ?? linha.ano ?? aluno.ano_curso ?? "Ano não informado";
-              if (linha.matematica) entradasPorDisciplina.push({ ano, disciplina_nome: "Matemática", nota: linha.matematica, status: "" });
-              if (linha.portugues) entradasPorDisciplina.push({ ano, disciplina_nome: "Português", nota: linha.portugues, status: "" });
-              if (linha.estudos_sociais) entradasPorDisciplina.push({ ano, disciplina_nome: "Estudos Sociais", nota: linha.estudos_sociais, status: "" });
-              if (linha.ciencias) entradasPorDisciplina.push({ ano, disciplina_nome: "Ciências", nota: linha.ciencias, status: "" });
-            });
-
-            // Agrupa por ano
-            const notasPorAno = entradasPorDisciplina.reduce((acc, entrada) => {
-              const ano = entrada.ano || "Sem Ano";
-              if (!acc[ano]) acc[ano] = [];
-              acc[ano].push({
-                disciplina_nome: entrada.disciplina_nome,
-                nota: entrada.nota,
-                status: entrada.status,
-              });
-              return acc;
-            }, {});
-
-            return {
-              aluno_nome: aluno.aluno_nome,
-              id: aluno.id,
-              notasPorAno,
-            };
-          } catch (err) {
-            // Caso o aluno não tenha notas (404)
-            return {
-              aluno_nome: aluno.aluno_nome,
-              id: aluno.id,
-              notasPorAno: {},
-            };
-          }
-        })
-      );
-
-      // Gera PDF apenas com notas dos alunos selecionados
-      const blob = await pdf(<BoletimSelecionadosPDF alunos={alunosComNotas} />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `boletim_selecionados.pdf`;
-      link.click();
-      URL.revokeObjectURL(url);
-
-    } catch (err) {
-      console.error("Erro ao gerar PDF de selecionados:", err);
-      alert("Erro ao gerar PDF dos alunos selecionados. Tente novamente.");
-    }
-  }}
->
-  Gerar PDF Selecionados
-</button>
-
-
-
-      {alunosSelecionados.length > 0 && (
+    <div
+      className={styles.filtros}
+      style={{
+        background: "#f7fafd",
+        borderRadius: "14px",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+        padding: "28px 24px 18px 24px",
+        margin: "24px 0 32px 0",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "18px 32px",
+        alignItems: "flex-end",
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <label style={{ fontWeight: 500, marginBottom: 4 }}>🔎 Nome</label>
+        <input
+          type="text"
+          name="nome"
+          placeholder="Nome"
+          value={filtros.nome}
+          onChange={handleFiltroChange}
+          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 140 }}
+        />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <label style={{ fontWeight: 500, marginBottom: 4 }}>📅 Ano</label>
+        <input
+          type="text"
+          name="ano"
+          placeholder="Ano"
+          value={filtros.ano}
+          onChange={handleFiltroChange}
+          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 100 }}
+        />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <label style={{ fontWeight: 500, marginBottom: 4 }}>🎓 Ano de Estudo</label>
+        <input
+          type="text"
+          name="anoEstudo"
+          placeholder="Ano de Estudo"
+          value={filtros.anoEstudo}
+          onChange={handleFiltroChange}
+          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 120 }}
+        />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <label style={{ fontWeight: 500, marginBottom: 4 }}>🏷️ Série</label>
+        <input
+          type="text"
+          name="serie"
+          placeholder="Série"
+          value={filtros.serie}
+          onChange={handleFiltroChange}
+          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 80 }}
+        />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <label style={{ fontWeight: 500, marginBottom: 4 }}>🕒 Período</label>
+        <input
+          type="text"
+          name="periodo"
+          placeholder="Período"
+          value={filtros.periodo}
+          onChange={handleFiltroChange}
+          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 100 }}
+        />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <label style={{ fontWeight: 500, marginBottom: 4 }}>⚧️ Sexo</label>
+        <input
+          type="text"
+          name="sexo"
+          placeholder="Sexo"
+          value={filtros.sexo}
+          onChange={handleFiltroChange}
+          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 80 }}
+        />
+      </div>
+      <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
         <button
-          style={{ backgroundColor: "#c00", color: "#fff", marginLeft: "10px" }}
-          onClick={async () => {
-            if (!confirm("Tem certeza que deseja excluir os alunos selecionados?")) return;
-            try {
-              await Promise.all(
-                alunosSelecionados.map((id) =>
-                  axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${id}`)
-                )
-              );
-              alert("Alunos excluídos com sucesso!");
-              const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos`);
-              setAlunos(response.data.dados);
-              setAlunosSelecionados([]);
-            } catch (error) {
-              console.error("Erro ao excluir alunos:", error);
-              alert("Erro ao excluir alunos.");
-            }
+          onClick={resetarFiltros}
+          style={{
+            background: "#e3eafc",
+            color: "#1976d2",
+            border: "none",
+            borderRadius: 6,
+            padding: "8px 16px",
+            fontWeight: 500,
+            cursor: "pointer",
+            marginRight: 8,
           }}
         >
-          Excluir Selecionados
+          Limpar Filtros
         </button>
-      )}
+        <button
+          className={styles.pdfButton}
+          onClick={async () => {
+            try {
+              const alunosValidos = alunos.filter((a) => alunosSelecionados.includes(a.id));
+
+              if (alunosValidos.length === 0) {
+                alert("Selecione ao menos um aluno");
+                return;
+              }
+                // Mapeia todos os alunos válidos e pega suas notas
+                const alunosComNotas = await Promise.all(
+                  alunosValidos.map(async (aluno) => {
+                    try {
+                      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notas/${aluno.id}`);
+                      const notasLinhas = response.data?.dados || [];
+
+                      // Transforma cada linha (com várias disciplinas) em entradas por disciplina
+                      const entradasPorDisciplina = [];
+                      notasLinhas.forEach((linha) => {
+                        const ano = linha.ano_curso ?? linha.ano ?? aluno.ano_curso ?? "Ano não informado";
+                        if (linha.matematica) entradasPorDisciplina.push({ ano, disciplina_nome: "Matemática", nota: linha.matematica, status: "" });
+                        if (linha.portugues) entradasPorDisciplina.push({ ano, disciplina_nome: "Português", nota: linha.portugues, status: "" });
+                        if (linha.estudos_sociais) entradasPorDisciplina.push({ ano, disciplina_nome: "Estudos Sociais", nota: linha.estudos_sociais, status: "" });
+                        if (linha.ciencias) entradasPorDisciplina.push({ ano, disciplina_nome: "Ciências", nota: linha.ciencias, status: "" });
+                      });
+
+                      // Agrupa por ano
+                      const notasPorAno = entradasPorDisciplina.reduce((acc, entrada) => {
+                        const ano = entrada.ano || "Sem Ano";
+                        if (!acc[ano]) acc[ano] = [];
+                        acc[ano].push({
+                          disciplina_nome: entrada.disciplina_nome,
+                          nota: entrada.nota,
+                          status: entrada.status,
+                        });
+                        return acc;
+                      }, {});
+
+                      return {
+                        aluno_nome: aluno.aluno_nome,
+                        id: aluno.id,
+                        notasPorAno,
+                      };
+                    } catch (err) {
+                      // Caso o aluno não tenha notas (404)
+                      return {
+                        aluno_nome: aluno.aluno_nome,
+                        id: aluno.id,
+                        notasPorAno: {},
+                      };
+                    }
+                  })
+                );
+
+                // Gera PDF apenas com notas dos alunos selecionados
+                const blob = await pdf(<BoletimSelecionadosPDF alunos={alunosComNotas} />).toBlob();
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `boletim_selecionados.pdf`;
+                link.click();
+                URL.revokeObjectURL(url);
+
+            } catch (err) {
+              console.error("Erro ao gerar PDF de selecionados:", err);
+              alert("Erro ao gerar PDF dos alunos selecionados. Tente novamente.");
+            }
+          }}
+          style={{
+            background: "#1976d2",
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            padding: "8px 16px",
+            fontWeight: 500,
+            cursor: "pointer",
+            marginRight: 8,
+          }}
+        >
+          📄 Gerar PDF Selecionados
+        </button>
+        {alunosSelecionados.length > 0 && (
+          <button
+            onClick={async () => {
+              if (!confirm("Tem certeza que deseja excluir os alunos selecionados?")) return;
+              try {
+                await Promise.all(
+                  alunosSelecionados.map((id) =>
+                    axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/alunos/${id}`)
+                  )
+                );
+                alert("Alunos excluídos com sucesso!");
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/alunos`);
+                setAlunos(response.data.dados);
+                setAlunosSelecionados([]);
+              } catch (error) {
+                console.error("Erro ao excluir alunos:", error);
+                alert("Erro ao excluir alunos.");
+              }
+            }}
+            style={{
+              background: "#c00",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              padding: "8px 16px",
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            🗑️ Excluir Selecionados
+          </button>
+        )}
+      </div>
     </div>
 
     {filtrosAtivos ? (
