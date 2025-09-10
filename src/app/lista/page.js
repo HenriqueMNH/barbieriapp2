@@ -610,105 +610,56 @@ return (
       )}
 
 
-    <div
-      className={styles.filtros}
-      style={{
-        background: "#f7fafd",
-        borderRadius: "14px",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-        padding: "28px 24px 18px 24px",
-        margin: "24px 0 32px 0",
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "18px 32px",
-        alignItems: "flex-end",
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <label style={{ fontWeight: 500, marginBottom: 4 }}>🔎 Nome</label>
-        <input
-          type="text"
-          name="nome"
-          placeholder="Nome"
-          value={filtros.nome}
-          onChange={handleFiltroChange}
-          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 140 }}
-        />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <label style={{ fontWeight: 500, marginBottom: 4 }}>📅 Ano</label>
-        <input
-          type="text"
-          name="ano"
-          placeholder="Ano"
-          value={filtros.ano}
-          onChange={handleFiltroChange}
-          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 100 }}
-        />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <label style={{ fontWeight: 500, marginBottom: 4 }}>🎓 Ano de Estudo</label>
-        <input
-          type="text"
-          name="anoEstudo"
-          placeholder="Ano de Estudo"
-          value={filtros.anoEstudo}
-          onChange={handleFiltroChange}
-          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 120 }}
-        />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <label style={{ fontWeight: 500, marginBottom: 4 }}>🏷️ Série</label>
-        <input
-          type="text"
-          name="serie"
-          placeholder="Série"
-          value={filtros.serie}
-          onChange={handleFiltroChange}
-          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 80 }}
-        />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <label style={{ fontWeight: 500, marginBottom: 4 }}>🕒 Período</label>
-        <input
-          type="text"
-          name="periodo"
-          placeholder="Período"
-          value={filtros.periodo}
-          onChange={handleFiltroChange}
-          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 100 }}
-        />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <label style={{ fontWeight: 500, marginBottom: 4 }}>⚧️ Sexo</label>
-        <input
-          type="text"
-          name="sexo"
-          placeholder="Sexo"
-          value={filtros.sexo}
-          onChange={handleFiltroChange}
-          style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #bcd", minWidth: 80 }}
-        />
-      </div>
-      <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
-        <button
-          onClick={resetarFiltros}
-          style={{
-            background: "#e3eafc",
-            color: "#1976d2",
-            border: "none",
-            borderRadius: 6,
-            padding: "8px 16px",
-            fontWeight: 500,
-            cursor: "pointer",
-            marginRight: 8,
-          }}
-        >
-          Limpar Filtros
-        </button>
-        <button
-          className={styles.pdfButton}
-          onClick={async () => {
+    <div className={styles.container}>
+  <h1 style={{ marginBottom: 24, color: "#1976d2", fontWeight: 700 }}>📋 Lista de Alunos</h1>
+
+  <div className={styles.filtros}>
+    <input
+      type="text"
+      name="nome"
+      placeholder="Nome"
+      value={filtros.nome}
+      onChange={handleFiltroChange}
+    />
+    <input
+      type="text"
+      name="ano"
+      placeholder="Ano"
+      value={filtros.ano}
+      onChange={handleFiltroChange}
+    />
+    <input
+      type="text"
+      name="anoEstudo"
+      placeholder="Ano de Estudo"
+      value={filtros.anoEstudo}
+      onChange={handleFiltroChange}
+    />
+    <input
+      type="text"
+      name="serie"
+      placeholder="Série"
+      value={filtros.serie}
+      onChange={handleFiltroChange}
+    />
+    <input
+      type="text"
+      name="periodo"
+      placeholder="Período"
+      value={filtros.periodo}
+      onChange={handleFiltroChange}
+    />
+    <input
+      type="text"
+      name="sexo"
+      placeholder="Sexo"
+      value={filtros.sexo}
+      onChange={handleFiltroChange}
+    />
+    <button onClick={resetarFiltros} style={{ background: "#e3eafc", color: "#1976d2" }}>
+      Limpar Filtros
+    </button>
+    <button className={styles.pdfButton} onClick={async () => {
             try {
               const alunosValidos = alunos.filter((a) => alunosSelecionados.includes(a.id));
 
