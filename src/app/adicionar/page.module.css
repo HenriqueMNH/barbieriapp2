@@ -35,28 +35,47 @@
     background-color: #005bb5;
   }
 
-.sugestoesLista {
-  position: absolute;
-  top: 100%; /* começa exatamente abaixo do input */
-  margin-top: 4px; /* ou mais, se quiser mais espaço */
-  left: 0;
-  z-index: 10;
-  background-color: rgba(255, 255, 255, 0.8); /* ou 0 para total transparência */
-  backdrop-filter: blur(4px); /* opcional */
-  border: 1px solid #ccc;
+.buttonSecundario {
+  background: #f1f1f1;
+  color: #1976d2;
+  border: none;
   border-radius: 4px;
-  width: 100%;
-  list-style: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.buttonSecundario:hover {
+  background: #e3eafc;
+}
+.sugestoesLista {
+  background: #fff;
+  border: 1px solid #bcd;
+  border-radius: 6px;
+  margin: 0 0 12px 0;
   padding: 0;
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.07);
 }
 
 
 .sugestaoItem {
-  padding: 8px;
+  padding: 8px 14px;
   cursor: pointer;
+  transition: background 0.15s;
 }
 
 .sugestaoItem:hover {
-  background-color: #f0f0f0;
+  background: #e3eafc;
 }
-  
+.textarea {
+  min-height: 60px;
+  resize: vertical;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
