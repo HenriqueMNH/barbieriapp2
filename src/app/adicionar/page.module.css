@@ -1,49 +1,83 @@
 .adicionarPage {
-    padding: 20px;
-    text-align: center;
-    background-color: #f9f9f9;
-    min-height: 100vh;
-  }
-  
-  .form {
-    display: flex;
-  position: relative;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 300px;
+    padding: 24px;
+    max-width: 800px;
     margin: 0 auto;
-  }
-  
-  /* Use a classe com o escopo correto */
-  .input, .select, .button {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
+    min-height: 100vh;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+    animation: slideIn 0.3s ease;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input, .select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.input:focus, .select:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25,118,210,0.1);
+}
   
   .select {
-    font-size: 16px;
-  }
-  
-  .button {
-    background-color: #0070f3;
-    color: white;
+    font-size: 14px;
+    width: 100%;
+}
+
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
     cursor: pointer;
-  }
-  
-  .button:hover {
-    background-color: #005bb5;
-  }
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #1976d2;
+    color: white;
+}
+
+.button:hover {
+    background: #1565c0;
+    transform: translateY(-1px);
+}
 
 .buttonSecundario {
-  background: #f1f1f1;
-  color: #1976d2;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background 0.2s;
+    background: #e3eafc;
+    color: #1976d2;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 .buttonSecundario:hover {
   background: #e3eafc;
@@ -71,11 +105,64 @@
   background: #e3eafc;
 }
 .textarea {
-  min-height: 60px;
-  resize: vertical;
-  padding: 8px 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  margin-bottom: 10px;
+    min-height: 60px;
+    resize: vertical;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25,118,210,0.1);
+}
+
+.title {
+    color: #1976d2;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .form {
+        grid-template-columns: 1fr;
+    }
+    
+    .buttons {
+        flex-direction: column;
+    }
+    
+    .button, .buttonSecundario {
+        width: 100%;
+        justify-content: center;
+    }
 }
