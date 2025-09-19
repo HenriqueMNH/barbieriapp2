@@ -48,7 +48,7 @@
 }
 
 .button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
     border-radius: 6px;
     font-weight: 500;
@@ -59,6 +59,7 @@
     gap: 8px;
     background: #1976d2;
     color: white;
+    margin: 8px 0;
 }
 
 .button:hover {
@@ -71,13 +72,14 @@
     color: #1976d2;
     border: none;
     border-radius: 6px;
-    padding: 10px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    margin: 8px 0;
 }
 .buttonSecundario:hover {
   background: #e3eafc;
@@ -133,8 +135,9 @@
 
 .buttons {
     display: flex;
-    gap: 12px;
+    gap: 24px;
     margin-top: 32px;
+    margin-bottom: 32px;
 }
 
 .fullWidth {

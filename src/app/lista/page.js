@@ -364,11 +364,6 @@ const verNotas = async (aluno) => {
 
 return (
   <div className={styles.listaPage}>
-    <button onClick={() => router.back()} className={styles.voltarButton}>
-      ⬅ Voltar
-    </button>
-    <h1>Lista de Alunos</h1>
-
     {modalAberto && (
       <div className={styles.modal}>
         <div className={styles.modalContent}>
@@ -611,7 +606,12 @@ return (
 
 
     <div className={styles.container}>
-  <h1 style={{ marginBottom: 24, color: "#1976d2", fontWeight: 700 }}>📋 Lista de Alunos</h1>
+      <div className={styles.pageHeader}>
+        <button onClick={() => router.back()} className={styles.voltarButton}>
+          ⬅️ Voltar
+        </button>
+        <h1 className={styles.title}>Lista de Alunos</h1>
+      </div>
 
   <div className={styles.filtros}>
     <input

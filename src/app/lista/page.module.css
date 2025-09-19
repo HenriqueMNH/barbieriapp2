@@ -5,6 +5,46 @@
   max-width: 1200px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
+  position: relative;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.title {
+  color: #333;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+}
+
+.voltarButton {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 16px;
+  background: #e3eafc;
+  color: #1976d2;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.voltarButton:hover {
+  background: #d1e0fb;
+  transform: translateY(-50%) translateX(-2px);
 }
 
 .filtros {
