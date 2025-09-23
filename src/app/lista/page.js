@@ -981,45 +981,7 @@ return (
                               <span>📝 <strong>Observação:</strong> {aluno.observacao || <span style={{ color: "#aaa" }}>Nenhuma</span>}</span>
                             </div>
                           </div>
-                          <div style={{ minWidth: 220, flex: 1 }}>
-                            <h4 style={{ margin: "0 0 10px 0", color: "#388e3c", fontWeight: 500 }}>
-                              📚 Notas por Ano
-                            </h4>
-                            <div>
-                              {(() => {
-                                // Filtra notas do aluno atual que possuem ano definido
-                                const notasAlunoFiltradas = notas.filter(nota => nota.aluno_id === aluno.id && nota.ano);
-
-                                // Agrupa as notas por ano
-                                const notasAgrupadasPorAno = notasAlunoFiltradas.reduce((acc, nota) => {
-                                  const ano = nota.ano;
-                                  if (!acc[ano]) acc[ano] = [];
-                                  acc[ano].push(nota);
-                                  return acc;
-                                }, {});
-
-                                const anosOrdenados = Object.keys(notasAgrupadasPorAno).sort();
-
-                                if (anosOrdenados.length === 0)
-                                  return <span style={{ color: "#aaa" }}>Nenhuma nota registrada.</span>;
-
-                                return anosOrdenados.map((ano) => (
-                                  <div key={ano} style={{ marginBottom: "10px" }}>
-                                    <strong style={{ color: "#1976d2" }}>Ano {ano}:</strong>
-                                    <ul style={{ margin: "5px 0 10px 18px", padding: 0 }}>
-                                      {notasAgrupadasPorAno[ano].map((nota, idx) => (
-                                        <li key={idx} style={{ marginBottom: 2 }}>
-                                          <span style={{ color: "#555" }}>
-                                            {nota.materia || nota.materia_nome}: <strong>{nota.valor || nota.nota}</strong>
-                                          </span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                ));
-                              })()}
-                            </div>
-                          </div>
+                          
                         </div>
                       </td>
                     </tr>
