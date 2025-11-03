@@ -28,6 +28,7 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
   const [eliminacaoCausa, setEliminacaoCausa] = useState("");
   const [observacao, setObservacao] = useState(""); // Estado para observação;
   const [religiao, setReligiao] = useState("");
+    const [telefones, setTelefones] = useState("");
 
   // Estados para notas
   const [matematica, setMatematica] = useState("");
@@ -63,6 +64,7 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
     setAnosPreenchidos([]);
     setFormularioNotas(false);
     setTelaAtual("menu");
+    setTelefones("")
   };
 
 
@@ -93,6 +95,7 @@ const handleSalvarAno = async (e) => {
       eliminacao_data: eliminacaoData || null,
       eliminacao_causa: eliminacaoCausa,
       religiao: religiao,
+      telefones: telefones
     };
 
     console.log("Criando NOVO aluno para o ano:", anoSelecionado);
@@ -331,6 +334,7 @@ onClick={async () => {
   setEliminacaoData(dados.eliminacao_data || "");
   setEliminacaoCausa(dados.eliminacao_causa || "");
   setReligiao(dados.religiao || "");
+  setTelefones(dados.telefones || "");
   // NÃO seta o alunoId quando selecionar sugestão - queremos criar um novo registro
   setAlunoId(null);
   

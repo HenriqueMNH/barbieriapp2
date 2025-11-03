@@ -55,6 +55,7 @@ export default function ListaAlunos() {
     periodo: "",
     observacao: "",
     religiao: "",
+    telefones: ""
   });
 
   const [alunoExpandidoId, setAlunoExpandidoId] = useState(null);
@@ -318,6 +319,7 @@ const verNotas = async (aluno) => {
       periodo: aluno.periodo || "",
       observacao: aluno.observacao || "",
       religiao: aluno.religiao || "",  // Garantir que o valor seja uma string vazia, se não houver.
+      telefones: aluno.telefones || "",
     });
     setModalEditarAlunoAberto(true);
   };
@@ -864,6 +866,7 @@ return (
         telefone: aluno.telefone,
         email: aluno.email,
         observacao: aluno.observacao,
+        telefones: aluno.telefones,
       };
       console.log("Objeto aluno para PDF:", alunoComNotas);
 
@@ -895,6 +898,7 @@ return (
           telefone: aluno.telefone,
           email: aluno.email,
           observacao: aluno.observacao,
+          telefones: aluno.telefones,
         };
 
         const blob = await pdf(<BoletimPDF aluno={alunoComNotas} />).toBlob();
@@ -943,6 +947,7 @@ return (
                     <td>{aluno.ano_curso}</td>
                     <td>{aluno.periodo}</td>
                     <td>{aluno.observacao}</td>
+                    <td>{aluno.telefones}</td>
                     <td>
                       <button onClick={() => verNotas(aluno)}>Ver Notas</button>
                     </td>
@@ -976,7 +981,7 @@ return (
                               <span>🙏 <strong>Religião:</strong> {aluno.religiao || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
                               <span>👨‍🔧 <strong>Profissão do Pai:</strong> {aluno.profissao_pai || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
                               <span>🌎 <strong>Nacionalidade do Pai:</strong> {aluno.nacionalidade_pai || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
-                              <span>📞 <strong>Telefone:</strong> {aluno.telefone || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>📞 <strong>Telefone:</strong> {aluno.telefones || <span style={{ color: "#aaa" }}></span>}</span><br />
                               <span>✉️ <strong>Email:</strong> {aluno.email || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
                               <span>📝 <strong>Observação:</strong> {aluno.observacao || <span style={{ color: "#aaa" }}>Nenhuma</span>}</span>
                             </div>
