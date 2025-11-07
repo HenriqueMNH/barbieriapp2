@@ -41,6 +41,10 @@ export default function ListaAlunos() {
   const [modalEditarAlunoAberto, setModalEditarAlunoAberto] = useState(false);
   const [alunoEditando, setAlunoEditando] = useState({ // Aqui os dados do aluno
     aluno_nome: "",
+    cpf: "",         // Add this
+    rg: "",          // Add this
+    ra: "",          // Add this
+    telefones: "",
     data_nascimento: "",
     cidade_natal: "",
     sexo: "",
@@ -305,6 +309,10 @@ const verNotas = async (aluno) => {
     setAlunoSelecionado(aluno);
     setAlunoEditando({
       aluno_nome: aluno.aluno_nome || "",
+      cpf: aluno.cpf || "",
+      rg: aluno.rg || "",
+      ra: aluno.ra || "",
+      telefones: aluno.telefones || "",
       data_nascimento: aluno.data_nascimento || "",
       cidade_natal: aluno.cidade_natal || "",
       sexo: aluno.sexo || "",
@@ -947,7 +955,6 @@ return (
                     <td>{aluno.ano_curso}</td>
                     <td>{aluno.periodo}</td>
                     <td>{aluno.observacao}</td>
-                    <td>{aluno.telefones}</td>
                     <td>
                       <button onClick={() => verNotas(aluno)}>Ver Notas</button>
                     </td>
@@ -961,29 +968,28 @@ return (
                   {alunoExpandidoId === aluno.id && (
                     <tr>
                       <td colSpan={18}>
-                        <div
-                          style={{
-                            background: "#fff",
-                            padding: "24px",
-                            borderRadius: "12px",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-                            margin: "16px 0",
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: "32px",
-                          }}
-                        >
+                        <div style={{
+                          background: "#fff",
+                          padding: "24px",
+                          borderRadius: "12px",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                          margin: "16px 0",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "32px",
+                        }}>
                           <div style={{ minWidth: 220, flex: 1 }}>
                             <h3 style={{ margin: "0 0 12px 0", color: "#1976d2", fontWeight: 600, fontSize: 18 }}>
                               📋 Informações Adicionais
                             </h3>
                             <div style={{ lineHeight: 2, fontSize: 15 }}>
-                              <span>🙏 <strong>Religião:</strong> {aluno.religiao || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>📞 <strong>Telefone:</strong> {aluno.telefones || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>🪪 <strong>CPF:</strong> {aluno.cpf || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>📄 <strong>RG:</strong> {aluno.rg || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
+                              <span>🔢 <strong>RA:</strong> {aluno.ra || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
                               <span>👨‍🔧 <strong>Profissão do Pai:</strong> {aluno.profissao_pai || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
                               <span>🌎 <strong>Nacionalidade do Pai:</strong> {aluno.nacionalidade_pai || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
-                              <span>📞 <strong>Telefone:</strong> {aluno.telefones || <span style={{ color: "#aaa" }}></span>}</span><br />
-                              <span>✉️ <strong>Email:</strong> {aluno.email || <span style={{ color: "#aaa" }}>Não informado</span>}</span><br />
-                              <span>📝 <strong>Observação:</strong> {aluno.observacao || <span style={{ color: "#aaa" }}>Nenhuma</span>}</span>
+                              <span>🏠 <strong>Residência:</strong> {aluno.residencia || <span style={{ color: "#aaa" }}>Não informado</span>}</span>
                             </div>
                           </div>
                           
