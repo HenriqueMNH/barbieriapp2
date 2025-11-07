@@ -64,7 +64,7 @@ module.exports = {
             const { id } = request.params;
             const {
                 aluno_nome, data_nascimento, cidade_natal, nome_pai, nome_mae = null,
-                profissao_pai, nacionalidade_pai, residencia, matricula_primitiva,
+                profissao_pai  = null, nacionalidade_pai = null, residencia, matricula_primitiva,
                 matricula_ano_letivo, ano_curso, sexo, observacao = null, 
                 eliminacao_data = null, eliminacao_causa = null, religiao = null,
                 cpf = null, rg = null, ra = null, telefones = null // New fields
