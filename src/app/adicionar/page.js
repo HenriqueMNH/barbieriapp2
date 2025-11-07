@@ -12,6 +12,9 @@ export default function AdicionarAluno() {
   // Estados para informações do aluno
   const [alunoId, setAlunoId] = useState(null);
   const [nome, setNome] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [rg, setRg] = useState("");
+  const [ra, setRa] = useState("");
   const [sugestoes, setSugestoes] = useState([]);
   const [dataNascimento, setDataNascimento] = useState("");
   const [cidadeNatal, setCidadeNatal] = useState("");
@@ -22,13 +25,13 @@ export default function AdicionarAluno() {
   const [residencia, setResidencia] = useState("");
   const [matriculaPrimitiva, setMatriculaPrimitiva] = useState("");
   const [matriculaAnoLetivo, setMatriculaAnoLetivo] = useState("");
-const [anoSelecionado, setAnoSelecionado] = useState("");
-const [anosPreenchidos, setAnosPreenchidos] = useState([]);
+  const [anoSelecionado, setAnoSelecionado] = useState("");
+  const [anosPreenchidos, setAnosPreenchidos] = useState([]);
   const [eliminacaoData, setEliminacaoData] = useState("");
   const [eliminacaoCausa, setEliminacaoCausa] = useState("");
   const [observacao, setObservacao] = useState(""); // Estado para observação;
   const [religiao, setReligiao] = useState("");
-    const [telefones, setTelefones] = useState("");
+  const [telefones, setTelefones] = useState("");
 
   // Estados para notas
   const [matematica, setMatematica] = useState("");
@@ -39,9 +42,12 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
   // Estado para o sexo
   const [sexo, setSexo] = useState("");
 
-    const resetarFormulario = () => {
+  const resetarFormulario = () => {
     setAlunoId(null);
     setNome("");
+    setCpf("");
+    setRg("");
+    setRa("");
     setDataNascimento("");
     setCidadeNatal("");
     setNomePai("");
@@ -64,7 +70,7 @@ const [anosPreenchidos, setAnosPreenchidos] = useState([]);
     setAnosPreenchidos([]);
     setFormularioNotas(false);
     setTelaAtual("menu");
-    setTelefones("")
+    setTelefones("");
   };
 
 
@@ -80,6 +86,9 @@ const handleSalvarAno = async (e) => {
     // SEMPRE cria um NOVO aluno para cada ano (nunca reutiliza)
     const alunoData = {
       aluno_nome: nome,
+      cpf,
+      rg,
+      ra,
       data_nascimento: dataNascimento,
       cidade_natal: cidadeNatal,
       nome_pai: nomePai,
@@ -306,6 +315,34 @@ const handleSalvarNotas = async () => {
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             required
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="CPF"
+            value={cpf}
+            onChange={(e) => setCpf(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="RG"
+            value={rg}
+            onChange={(e) => setRg(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="RA"
+            value={ra}
+            onChange={(e) => setRa(e.target.value)}
+            className={styles.input}
+          />
+          <input
+            type="text"
+            placeholder="Telefones"
+            value={telefones}
+            onChange={(e) => setTelefones(e.target.value)}
             className={styles.input}
           />
 
