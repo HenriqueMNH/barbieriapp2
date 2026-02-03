@@ -1,0 +1,22 @@
+{
+  "name": "meu-app",
+  "version": "1.0.0",
+  "description": "Sistema Barbieri",
+  "author": "Henrique Martins",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^26.7.0"
+  },
+  "build": {
+    "appId": "com.barbieri.app",
+    "productName": "BarbieriApp",
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
