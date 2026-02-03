@@ -17,6 +17,9 @@
     "productName": "BarbieriApp",
     "win": {
       "target": "nsis"
+    },
+    "mac": {
+      "sign": false
     }
   }
 }

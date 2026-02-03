@@ -1,9 +1,7 @@
 const { app, BrowserWindow } = require("electron");
-const { spawn } = require("child_process");
 const path = require("path");
 
 let mainWindow;
-let nextProcess;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -14,19 +12,13 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadURL("http://localhost:3000");
+  // Load the static index.html from the Next.js export
+  const indexPath = path.join(__dirname, "../out/index.html");
+  mainWindow.loadFile(indexPath);
 
   mainWindow.on("closed", () => {
-    if (nextProcess) nextProcess.kill();
     app.quit();
   });
 }
 
-app.whenReady().then(() => {
-  nextProcess = spawn("npm", ["run", "start"], {
-    cwd: path.join(__dirname, "../app-next"),
-    shell: true
-  });
-
-  setTimeout(createWindow, 3000);
-});
+app.whenReady().then(createWindow);
