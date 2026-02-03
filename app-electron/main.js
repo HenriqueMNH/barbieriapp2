@@ -12,7 +12,8 @@ function createWindow() {
     }
   });
 
-  // Load the static index.html from the Next.js export
+
+  // Load the static index.html from the Next.js export for offline use
   const indexPath = path.join(__dirname, "../out/index.html");
   mainWindow.loadFile(indexPath);
 
