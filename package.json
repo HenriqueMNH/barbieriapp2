@@ -38,6 +38,8 @@
   },
   "homepage": "https://github.com/HenriqueMNH/barbieriapp2#readme",
   "devDependencies": {
+    "electron": "^40.1.0",
+    "electron-builder": "^26.7.0",
     "nodemon": "^3.1.10"
   }
 }
